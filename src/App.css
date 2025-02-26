@@ -1,0 +1,32 @@
+.header-text {
+  font-size: 14px;
+  font-weight: 500;
+}
+.form-button {
+  display: flex;
+  justify-content: center;
+  gap: 20px !important;
+}
+.overall-container {
+  display: flex;
+  justify-content: space-between;
+  background-color: #e1f2f3;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+/* ------------ tabs ---------- */
+
+
+.ant-tabs-tab {
+  background-color: #f0f4f8 !important;
+  color: #1b1919 !important;
+  padding: 5px 10px !important;
+}
+.ant-tabs-tab-active {
+  background-color: #00a79d !important;
+  color: #fff !important;
+}
+.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #fff !important;
+}

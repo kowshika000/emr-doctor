@@ -1,0 +1,68 @@
+.profile_info_head {
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+}
+.profile_info_body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: end;
+  flex-wrap: wrap;
+  font-size: 12px;
+}
+.profile-card-2 {
+  width: 300px;
+  padding: 20px;
+}
+
+.text-header-p {
+  text-align: center;
+  font-weight: 500;
+  font-size: 18px;
+  background-color: #ddd;
+  margin: 0;
+  color: black;
+  margin-bottom: 10px;
+  border-radius: 8px;
+}
+
+.profile_dispaly {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* .ant-card {
+  background-color: rgb(0, 167, 157);
+} */
+/* .ant-card-head {
+  min-height: 35px !important;
+}*/
+.ant-card-body {
+  padding: 10px !important;
+}
+.sigleSheet-container-1 {
+  /* margin: 0 20px; */
+  width: 100%;
+}
+.sigleSheet-container-2 {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid gainsboro;
+  padding: 10px;
+}
+/* .ant-tabs-card.ant-tabs-top > .ant-tabs-nav .ant-tabs-tab-active {
+  background-color: rgb(119, 204, 221);
+  color: rgb(0, 0, 0) !important;
+}
+.ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: rgb(0, 0, 0) !important;
+} */
+
+.ant-picker-borderless {
+  background-color: #f0f0f0 !important ;
+}
+
