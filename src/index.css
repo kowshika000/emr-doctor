@@ -1,0 +1,19 @@
+html,
+body {
+  font-size: 14px !important;
+  font-family: system-ui !important;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  width: 100% !important;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #c8cdce; /* Color of the scrollbar thumb */
+  border-radius: 5px; /* Round the corners of the thumb */
+  border: 2px solid transparent; /* Adds space between thumb and track */
+  background-clip: content-box; /* Ensures the thumb color stays within bounds */
+}

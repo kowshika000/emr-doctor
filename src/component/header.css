@@ -1,0 +1,49 @@
+.ant-radio-button-wrapper {
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+}
+
+.doctor-ip-tabs .ant-tabs-tab {
+  background: #91cfd1 !important; /* Background color for all tabs */
+  padding: 10px 14px;
+  border-radius: 4px;
+  /* transition: background 0.3s ease; */
+  font-weight: 500;
+}
+
+.doctor-ip-tabs .ant-tabs-tab:hover {
+  background: #aac7ca !important; /* Hover background */
+  color: #000000 !important;
+}
+
+.doctor-ip-tabs .ant-tabs-tab-active {
+  background: #dad4d4 !important; /* Active tab background */
+  /* color: black !important; */
+  border-radius: 4px;
+}
+
+.doctor-ip-tabs .ant-tabs-card .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: black !important;
+  /* font-weight: 500; */
+}
+
+.doctor-ip-tabs .ant-tabs-tab-btn {
+  transition: color 0.3s ease;
+}
+
+.doctor-ip-tabs .ant-tabs-tab-btn:hover {
+  color: #050505 !important;
+}
+
+
+
+.css-78trlr-MuiButtonBase-root-MuiIconButton-root {
+  padding: 0 !important;
+}
+
+
+/* .ant-picker {
+  width: 220px !important;
+  border: none !important;
+  outline: none !important;
+} */
