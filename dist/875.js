@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkdoctor_emr=self.webpackChunkdoctor_emr||[]).push([[875],{60875:(o,t,e)=>{function n(o){return n="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(o){return typeof o}:function(o){return o&&"function"==typeof Symbol&&o.constructor===Symbol&&o!==Symbol.prototype?"symbol":typeof o},n(o)}e.d(t,{A:()=>n})}}]);

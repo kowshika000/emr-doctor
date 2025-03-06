@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkdoctor_emr=self.webpackChunkdoctor_emr||[]).push([[255],{46255:(s,c,e)=>{e.d(c,{A:()=>o});var r=e(20561),t=e(74848);const o=(0,r.A)((0,t.jsx)("path",{d:"M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2m0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2m0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2"}),"MoreVert")}}]);
