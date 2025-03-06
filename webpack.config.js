@@ -9,7 +9,7 @@ const printCompilationMessage = require("./compilation.config.js");
 
 module.exports = (_, argv) => ({
   output: {
-    publicPath: "http://localhost:3004/",
+    publicPath: "https://emr-doctor-child3.web.app/",
   },
 
   resolve: {
@@ -20,6 +20,11 @@ module.exports = (_, argv) => ({
     port: 3004,
     historyApiFallback: true,
     watchFiles: [path.resolve(__dirname, "src")],
+    hot: false, // 🔴 Disable Hot Module Replacement (HMR)
+    liveReload: false, // 🔴 Prevent WebSockets from reconnecting
+    client: {
+      webSocketURL: "auto://0.0.0.0:0/ws", // 🔴 Prevent WebSocket issues
+    },
     onListening: function (devServer) {
       const port = devServer.server.address().port;
 
