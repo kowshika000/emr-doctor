@@ -109,12 +109,8 @@ const DoctorIpTabs = () => {
   ];
 
   return (
-    <div style={{ padding: 0 }}>
-      <Tabs
-        defaultActiveKey="1"
-        items={items}
-        type="card"
-      />
+    <div className="w-100 p-3" style={{ overflow: "auto" }}>
+      <Tabs defaultActiveKey="1" items={items} type="card" />
     </div>
   );
 };

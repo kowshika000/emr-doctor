@@ -6,7 +6,7 @@ import OpTab from "./opTab";
 const PatientDetails = () => {
   return (
     <div
-      className="d-flex w-100 p-2"
+      className="d-flex w-100 p-3"
       style={{ height: "100vh", overflow: "hidden" }}
     >
       <div

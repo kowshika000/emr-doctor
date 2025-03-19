@@ -4,7 +4,7 @@ import "./components/component.css";
 
 const DoctorIP = ({ navigate }) => {
   return (
-    <div className="d-flex" style={{ flexDirection: "row" }}>
+    <div style={{ flexDirection: "row" }}>
       <DoctorIpDashboard navigate={navigate} />
     </div>
   );
