@@ -6,6 +6,7 @@ body {
   padding: 0;
   box-sizing: border-box;
   width: 100% !important;
+  overflow-y: auto !important;
 }
 ::-webkit-scrollbar {
   width: 10px;
