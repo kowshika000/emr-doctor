@@ -1,11 +1,16 @@
-import React, { useState } from "react";
-import { Menu, MenuItem } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Table, Menu, Dropdown, Button } from "antd";
 import AddManagementPlan from "./addManagementPlan";
 import ManagementPlanHistory from "./managementPlanHistory";
 import EditManagementPlan from "./editManagementPlan";
 import CustomTable from "../../../components/Table";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchManagementPlan } from "../../../../Redux/slice/DoctSlice/GET/managementSlice";
+import { deleteManagementPlan } from "../../../../Redux/slice/DoctSlice/DELETE/managementSlice";
+import { MoreOutlined } from "@ant-design/icons";
 
-function DisplayManagementPlan() {
+function DisplayManagementPlan({ appointmentId, patientId }) {
+  const dispatch = useDispatch();
   const [addManagementPlanModal, setAddManagementPlanModal] = useState(false);
   const [managementPlanHistoryModal, setManagementPlanHistoryModal] =
     useState(false);
@@ -16,27 +21,15 @@ function DisplayManagementPlan() {
   const [currentRow, setCurrentRow] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const handleClick = (event, row) => {
-    setAnchorEl(event.currentTarget);
-    setCurrentRow(row);
+  const { data } = useSelector((state) => state.docEmr?.management);
+
+  const getManagementPlan = () => {
+    dispatch(fetchManagementPlan({ appointmentId }));
   };
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-  const handleMenuClick = (action) => {
-    handleClose();
-    if (action === "delete" && currentRow) {
-      let deleteManagementPlan = updatedManagementPlan.filter(
-        (item) => item.id !== currentRow.id
-      );
-      setupdatedManagementPlan(deleteManagementPlan);
-    }
-    if (action === "edit" && currentRow) {
-      setSelectedManagementPlan(currentRow);
-      setManagementPlanModal(true);
-    }
-  };
+  useEffect(() => {
+    getManagementPlan();
+  }, [dispatch]);
 
   const handleAddManagementPlanModalOpen = () => {
     setAddManagementPlanModal(true);
@@ -54,32 +47,77 @@ function DisplayManagementPlan() {
     setManagementPlanHistoryModal(false);
   };
 
-  const rows = [
-    {
-      id: 1,
-      plan: "Primary",
-      enteredBy: "C25.0",
-      enteredDate: "C25.0",
-    },
-  ];
+  const handleDelete = (id) => {
+    dispatch(deleteManagementPlan({ id }))
+      .unwrap()
+      .then(() => {
+        getManagementPlan();
+      })
+      .catch((error) => {
+        console.error("Failed to delete diagnosis:", error);
+      });
+  };
+
+  const handleEdit = (id) => {
+    const selectedPlan = data.find((item) => item.id === id);
+    setSelectedManagementPlan(selectedPlan);
+    setManagementPlanModal(true);
+  };
+
+  const menu = (row) => (
+    <Menu>
+      <Menu.Item key="edit" onClick={() => handleEdit(row.id)}>
+        Edit
+      </Menu.Item>
+      <Menu.Item key="delete" onClick={() => handleDelete(row.id)}>
+        Delete
+      </Menu.Item>
+    </Menu>
+  );
 
   const columns = [
-    { field: "id", headerName: "S.No", flex: 1 },
-    { field: "plan", headerName: "Plan", flex: 1 },
-    { field: "enteredBy", headerName: "Entered By", flex: 1 },
-    { field: "enteredDate", headerName: "Entered Date", flex: 1 },
     {
-      field: "options",
-      headerName: "Options",
-      flex: 1,
-      // renderCell: (params) => <></>,
+      title: "S.No",
+      dataIndex: "sno",
+      key: "sno",
+      render: (text, record, index) => index + 1,
+    },
+    {
+      title: "Plan",
+      dataIndex: "plan",
+      key: "plan",
+    },
+    {
+      title: "Entered By",
+      dataIndex: "createdBy",
+      key: "createdBy",
+    },
+    {
+      title: "Entered Date",
+      dataIndex: "createdOn",
+      key: "createdOn",
+    },
+    {
+      title: "Options",
+      key: "options",
+      render: (text, row) => (
+        <Dropdown overlay={menu(row)} trigger={["click"]}>
+          <MoreOutlined />
+        </Dropdown>
+      ),
     },
   ];
-
-  const ManagementPlan = (value) => {
-    setManagementPlan((prev) => [...prev, value]);
-    setupdatedManagementPlan((prev) => [...prev, value]);
-  };
+  const managementPlansData = data.map((item, index) => ({
+    key: item.id,
+    sno: index + 1,
+    id: item.id,
+    plan: item.plan,
+    createdBy: item?.createdBy || "N/A",
+    createdOn: item?.createdOn
+      ? new Date(item.createdOn).toLocaleDateString()
+      : "N/A",
+    appointmentId: appointmentId || "N/A",
+  }));
 
   const handleEditManagementPlanModalClose = () => {
     setManagementPlanModal(false);
@@ -107,25 +145,18 @@ function DisplayManagementPlan() {
           </div>
         </div>
 
-        <CustomTable
-          rows={updatedManagementPlan}
+        <Table
+          dataSource={managementPlansData}
           columns={columns}
-          onOptionClick={handleClick}
+          rowKey="id"
+          className="table-container"
         />
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleClose}
-        >
-          <MenuItem onClick={() => handleMenuClick("edit")}>Edit</MenuItem>
-          <MenuItem onClick={() => handleMenuClick("delete")}>Delete</MenuItem>
-        </Menu>
       </div>
       {addManagementPlanModal && (
         <AddManagementPlan
           handleAddManagementPlanModalClose={handleAddManagementPlanModalClose}
-          ManagementPlan={ManagementPlan}
-          currentPlanCount={managementPlan.length}
+          getManagementPlan={getManagementPlan}
+          appointmentId={appointmentId}
         />
       )}
       {managementPlanHistoryModal && (
@@ -133,18 +164,19 @@ function DisplayManagementPlan() {
           handleManagementPlanHistoryModalClose={
             handleManagementPlanHistoryModalClose
           }
-          managementPlan={managementPlan}
+          managementPlan={managementPlansData}
           setupdatedManagementPlan={setupdatedManagementPlan}
         />
       )}
-      {editManagementPlanModal && (
+      {editManagementPlanModal && selectedManagementPlan && (
         <EditManagementPlan
           editSelectedManagementPlan={selectedManagementPlan}
           setupdatedManagementPlan={setupdatedManagementPlan}
           handleEditManagementPlanModalClose={
             handleEditManagementPlanModalClose
           }
-          updatedManagementPlan={updatedManagementPlan}
+          getManagementPlan={getManagementPlan}
+          appointmentId={appointmentId}
         />
       )}
     </div>

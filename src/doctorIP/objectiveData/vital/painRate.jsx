@@ -1,15 +1,22 @@
 import React, { useState } from "react";
 import AddPainRate from "./addPainRate";
+import { useEffect } from "react";
+import { fetchPainRate } from "../../../Redux/slice/DoctSlice/GET/painrateSlice";
+import { useDispatch, useSelector } from "react-redux";
 
-const PainRate = () => {
+const PainRate = ({ appointmentId, patientId }) => {
+  const dispatch = useDispatch();
   const [addPainrate, setAddPainrate] = useState(false);
-  const [painRateData, setPainRateData] = useState([]); // State to store pain rate data
+  // const [painRateData, setPainRateData] = useState([]);
 
-  const handleAddPainRate = (newPainRate) => {
-    setPainRateData([...painRateData, newPainRate]); // Add new pain rate to the list
-    setAddPainrate(false);
+  const data = useSelector((state) => state.docEmr?.showPainrate?.paindata);
+
+  const getPainrate = () => {
+    dispatch(fetchPainRate({ appointmentId }));
   };
-
+  useEffect(() => {
+    getPainrate();
+  }, [dispatch]);
   return (
     <div>
       <div className="header-container my-4">
@@ -22,9 +29,9 @@ const PainRate = () => {
         className="data-container"
         style={{ borderBottom: "1px solid gray", padding: "10px 0" }}
       >
-        {painRateData.length > 0 ? (
+        {data ? (
           <ul>
-            {painRateData.map((rate, index) => (
+            {data?.map((rate, index) => (
               <li key={index}>
                 <strong>Pain Rate:</strong> {rate.painRate}
               </li>
@@ -36,8 +43,9 @@ const PainRate = () => {
       </div>
       {addPainrate && (
         <AddPainRate
-          handleCloseAddVital={() => setAddPainrate(false)}
-          onAddPainRate={handleAddPainRate} // Pass function to handle adding pain rate
+          handleClose={() => setAddPainrate(false)}
+          appointmentId={appointmentId}
+          getPainrate={getPainrate}
         />
       )}
     </div>

@@ -6,8 +6,11 @@ import {
   Select,
   InputLabel,
   FormControl,
-  FormHelperText,
+  Button,
+  IconButton,
+  Typography,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
 const FormInput = ({
   label,
@@ -16,16 +19,39 @@ const FormInput = ({
   type = "text",
   options = [],
   required = false,
+  setDependentValue,
   ...props
 }) => {
   const [error, setError] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(value || null);
+
+  const formatDate = (date) => {
+    if (!date) return "";
+    return new Date(date).toISOString().split("T")[0];
+  };
+
+  const formatDateTime = (dateTime) => {
+    if (!dateTime) return "";
+    const date = new Date(dateTime);
+    return date.toISOString().slice(0, 19).replace("T", " ");
+  };
 
   const handleBlur = () => {
-    if (required && !value) {
-      setError(true);
-    } else {
+    setError(required && !value);
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      onChange(file);
       setError(false);
     }
+  };
+
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    onChange(null);
   };
 
   return (
@@ -36,6 +62,7 @@ const FormInput = ({
           error={error}
           size="small"
           sx={{ width: "100%" }}
+          variant="outlined"
         >
           <InputLabel>{label}</InputLabel>
           <Select
@@ -65,15 +92,63 @@ const FormInput = ({
               </MenuItem>
             ))}
           </Select>
-          {error && <FormHelperText>{label} is required</FormHelperText>}
         </FormControl>
+      ) : type === "file" ? (
+        <Box>
+          {!selectedFile ? (
+            <Button
+              variant="outlined"
+              component="label"
+              className="w-100 my-auto"
+            >
+              Upload {label}
+              <input type="file" hidden onChange={handleFileChange} />
+            </Button>
+          ) : (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                border: "1px solid #ccc",
+                borderRadius: "4px",
+                padding: "4px 8px",
+                backgroundColor: "#f9f9f9",
+                justifyContent: "space-between",
+              }}
+            >
+              <Typography sx={{ fontSize: "14px", color: "#333" }}>
+                {selectedFile.name}
+              </Typography>
+              <IconButton size="small" onClick={handleRemoveFile}>
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </Box>
+          )}
+        </Box>
       ) : (
         <TextField
+          variant="outlined"
           label={label}
-          value={value}
+          value={
+            type === "date"
+              ? formatDate(value)
+              : type === "datetime-local"
+              ? formatDateTime(value)
+              : value
+          }
           onChange={(e) => {
-            const newValue = e.target.value;
+            let newValue = e.target.value;
+
+            if (type === "datetime-local") {
+              newValue = newValue.replace("T", " ");
+            }
+
             onChange(newValue);
+
+            if (type === "date" && setDependentValue) {
+              setDependentValue(calculateAge(newValue));
+            }
+
             setError(required && !newValue);
           }}
           onBlur={handleBlur}
@@ -84,18 +159,34 @@ const FormInput = ({
           multiline={type === "textarea"}
           rows={type === "textarea" ? 2 : undefined}
           error={error}
-          helperText={error ? `${label} is required` : ""}
           InputLabelProps={{
-            shrink: type === "date" ? true : undefined,
+            shrink:
+              type === "date" || type === "time" || type === "datetime-local"
+                ? true
+                : undefined,
           }}
           inputProps={{
             ...(type === "date" && { pattern: "\\d{4}-\\d{2}-\\d{2}" }),
+            ...(type === "datetime-local" && {
+              step: 1, // Allows seconds in datetime-local input
+            }),
           }}
           {...props}
         />
       )}
     </Box>
   );
+};
+
+const calculateAge = (dob) => {
+  const birthDate = new Date(dob);
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
 };
 
 export default FormInput;

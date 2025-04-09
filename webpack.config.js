@@ -90,6 +90,7 @@ module.exports = (_, argv) => {
           "./DoctorEmr": "./src/component/doctorEmr.jsx",
           "./IPDetails": "./src/doctorIP/landingPage/doctorIpTabs.jsx",
           "./OPDetails": "./src/doctorOP/patientDetails/patientDetails.jsx",
+          "./docEmrReducer": "./src/Redux/reducer.jsx"
         },
         shared: {
           ...deps,

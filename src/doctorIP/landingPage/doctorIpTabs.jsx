@@ -17,94 +17,97 @@ import DischargeSummary from "../DischargeSummary/DischargeSummary";
 import FollowUp from "../FollowUp/FollowUp";
 import LifeSupportData from "../LifeSupportData/LifeSupportData";
 import DeliveryDetails from "../DeliveryDetails/DeliveryDetails";
+import { useLocation } from "react-router-dom";
 
 const DoctorIpTabs = () => {
+  const location = useLocation();
+  const patientId = location.state?.patientId;
   const items = [
     {
       key: "1",
       label: "Subjective Data",
-      children: <Subjective />,
+      children: <Subjective patientId={patientId} />,
     },
     {
       key: "2",
       label: "Objective Data",
-      children: <Objective />,
+      children: <Objective patientId={patientId} />,
     },
     {
       key: "3",
       label: "Assessment Data",
-      children: <DiagnosisIp />,
+      children: <DiagnosisIp patientId={patientId} />,
     },
     {
       key: "4",
       label: "Plan",
-      children: <Plan />,
+      children: <Plan patientId={patientId} />,
     },
 
     {
       key: "5",
       label: "Physician Notes",
-      children: <PhysicianNotes />,
+      children: <PhysicianNotes patientId={patientId} />,
     },
     {
       key: "6",
       label: "Progress Notes",
-      children: <ProgressNotes />,
+      children: <ProgressNotes patientId={patientId} />,
     },
     {
       key: "7",
       label: "Documents & Remarks",
-      children: <DocumentandRemarkIp />,
+      children: <DocumentandRemarkIp patientId={patientId} />,
     },
     {
       key: "8",
       label: "Surgery Order",
-      children: <SurgeryOrder />,
+      children: <SurgeryOrder patientId={patientId} />,
     },
     {
       key: "9",
       label: "Pre-Operative Data",
-      children: <PreOperative />,
+      children: <PreOperative patientId={patientId} />,
     },
     {
       key: "10",
       label: "Intra-Operative Data",
-      children: <IntraOperative />,
+      children: <IntraOperative patientId={patientId} />,
     },
     {
       key: "11",
       label: " PACU Data",
-      children: <PACUData />,
+      children: <PACUData patientId={patientId} />,
     },
     {
       key: "12",
       label: "Post-Operative Data",
-      children: <PostOperative />,
+      children: <PostOperative patientId={patientId} />,
     },
     {
       key: "13",
       label: "UCAF",
-      children: <UCAF />,
+      children: <UCAF patientId={patientId} />,
     },
     {
       key: "14",
       label: "Discharge Summary",
-      children: <DischargeSummary />,
+      children: <DischargeSummary patientId={patientId} />,
     },
     {
       key: "15",
       label: "Follow Up",
-      children: <FollowUp />,
+      children: <FollowUp patientId={patientId} />,
     },
     {
       key: "16",
       label: "Life Support Data",
-      children: <LifeSupportData />,
+      children: <LifeSupportData patientId={patientId} />,
     },
     {
       key: "17",
       label: "Delivery Details",
-      children: <DeliveryDetails />,
+      children: <DeliveryDetails patientId={patientId} />,
     },
   ];
 

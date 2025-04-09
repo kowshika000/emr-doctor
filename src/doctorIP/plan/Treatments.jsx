@@ -1,10 +1,10 @@
 import React from "react";
 import DisplayTreatment from "./Treatment/displayTreatment";
 
-const Treatments = () => {
+const Treatments = ({patientId}) => {
   return (
     <div className="full-screen-scrollable">
-      <DisplayTreatment />
+      <DisplayTreatment patientId={patientId} />
     </div>
   );
 };

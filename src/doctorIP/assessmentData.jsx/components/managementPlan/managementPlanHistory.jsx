@@ -1,40 +1,40 @@
-import { MenuItem, Menu, Dialog, DialogActions, DialogContent, DialogTitle, Button } from "@mui/material";
-import CustomTable from "../../../components/Table";
-import { useState } from "react";
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Button,
+} from "@mui/material";
+import React from "react";
+import { Table } from "antd";
 
 function ManagementPlanHistory({
   handleManagementPlanHistoryModalClose,
   managementPlan,
-  setupdatedManagementPlan,
 }) {
-  const [currentRow, setCurrentRow] = useState(null);
-  const [anchorEl, setAnchorEl] = useState(null);
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleOptionsClick = (event, row) => {
-    event.preventDefault();
-    setAnchorEl(event.currentTarget);
-    setCurrentRow(row);
-  };
-
   const columns = [
-    { field: "id", headerName: "S.No", flex: 1 },
-    { field: "plan", headerName: "Plan", flex: 1 },
-    { field: "enteredBy", headerName: "Entered By", flex: 1 },
-    { field: "enteredDate", headerName: "Entered Date", flex: 1 },
     {
-      field: "options",
-      headerName: "Options",
-      flex: 1,
+      title: "S.No",
+      dataIndex: "sno",
+      key: "sno",
+      render: (text, record, index) => index + 1,
+    },
+    {
+      title: "Plan",
+      dataIndex: "plan",
+      key: "plan",
+    },
+    {
+      title: "Entered By",
+      dataIndex: "createdBy",
+      key: "createdBy",
+    },
+    {
+      title: "Entered Date",
+      dataIndex: "createdOn",
+      key: "createdOn",
     },
   ];
-
-  const handleAddManagementPlan = () => {
-    setupdatedManagementPlan((prev) => [...prev, currentRow]);
-  };
 
   return (
     <Dialog
@@ -44,19 +44,20 @@ function ManagementPlanHistory({
       fullWidth
     >
       <form>
-        <DialogTitle>View Complaints</DialogTitle>
+        <DialogTitle>View History</DialogTitle>
         <DialogContent>
-          <CustomTable
-            rows={managementPlan}
+          <Table
+            dataSource={managementPlan}
             columns={columns}
-            onOptionClick={handleOptionsClick}
+            rowKey="id"
+            className="table-container"
           />
-          <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-            <MenuItem onClick={handleAddManagementPlan}>Add</MenuItem>
-          </Menu>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleManagementPlanHistoryModalClose} color="secondary">
+          <Button
+            onClick={handleManagementPlanHistoryModalClose}
+            color="secondary"
+          >
             Close
           </Button>
         </DialogActions>

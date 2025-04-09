@@ -6,15 +6,17 @@ import DiagnosisChecklist from "./checkList";
 import InvestigationsTable from "./Inverstigations";
 import TreatmentTable from "./Treatment";
 import UCAFForm from "./Form";
+import { Vital } from "../objectiveData/vital/Vital";
+import ChiefComplaint from "../subjectiveData/hopi/chiefComplaint";
 
-const UCAF = () => {
+const UCAF = ({patientId}) => {
   return (
     <div className="full-screen-scrollable">
       <div>
-        <VitalHistoryTable />
+        <Vital patientId={patientId} />
       </div>
       <div>
-        <CheifComplaints/>
+        <ChiefComplaint/>
       </div>
       <div>
         <DiagnosisTable/>

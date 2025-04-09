@@ -2,11 +2,7 @@
   font-size: 14px;
   font-weight: 500;
 }
-.form-button {
-  display: flex;
-  justify-content: center;
-  gap: 20px !important;
-}
+
 .overall-container {
   display: flex;
   justify-content: space-between;

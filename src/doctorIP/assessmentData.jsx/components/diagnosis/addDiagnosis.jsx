@@ -1,5 +1,4 @@
-import { useFormik } from "formik";
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogActions,
@@ -12,24 +11,36 @@ import {
   Button,
 } from "@mui/material";
 import FormButton from "../../../../component/FormButton";
+import { useDispatch } from "react-redux";
+import { createDiagnosis } from "../../../../Redux/slice/DoctSlice/POST/diagnosisSlice";
 
 function AddDiagnosis({
   handleAddDiagnosisModalClose,
-  handleAddDiagnosis,
-  currentPlanCount,
+  getDiagnosis,
+  appointmentId,
 }) {
-  const formik = useFormik({
-    initialValues: {
-      id: currentPlanCount + 1,
-      category: "",
-      IcdCode: `Icd ${currentPlanCount + 1}`,
-      diagnosis: "",
-    },
-    onSubmit: (values) => {
-      handleAddDiagnosis(values);
-      handleAddDiagnosisModalClose();
-    },
-  });
+  const dispatch = useDispatch();
+  const [category, setCategory] = useState("");
+  const [diagnosis, setDiagnosis] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const newDiagnosis = {
+      category,
+      diagnosis,
+      appointmentId,
+    };
+
+    dispatch(createDiagnosis(newDiagnosis))
+      .unwrap()
+      .then(() => {
+        getDiagnosis();
+        handleAddDiagnosisModalClose();
+      })
+      .catch((error) => {
+        console.error("Failed to create diagnosis:", error);
+      });
+  };
 
   return (
     <Dialog
@@ -38,36 +49,17 @@ function AddDiagnosis({
       maxWidth="md"
       fullWidth
     >
-      <form onSubmit={formik.handleSubmit}>
+      <form onSubmit={handleSubmit}>
         <DialogContent>
           <h6>Add Final Diagnosis</h6>
           <div className="row">
             <div className="form-group" style={{ marginBottom: "16px" }}>
-              <FormControl fullWidth variant="standard">
-                <InputLabel>Category</InputLabel>
-                <Select
-                  id="category"
-                  name="category"
-                  value={formik.values.category}
-                  onChange={formik.handleChange}
-                  label="Category"
-                >
-                  <MenuItem value="">Select a Category</MenuItem>
-                  <MenuItem value="Primary">Primary</MenuItem>
-                  <MenuItem value="Secondary">Secondary</MenuItem>
-                </Select>
-              </FormControl>
-            </div>
-
-            <div className="form-group" style={{ marginBottom: "16px" }}>
-              <FormControl fullWidth variant="standard">
+              <FormControl fullWidth size="small">
                 <InputLabel>Diagnosis</InputLabel>
                 <Select
-                  id="diagnosis"
-                  name="diagnosis"
-                  value={formik.values.diagnosis}
-                  onChange={formik.handleChange}
-                  label="Diagnosis"
+                  value={diagnosis}
+                  onChange={(e) => setDiagnosis(e.target.value)}
+                  size="small"
                 >
                   <MenuItem value="">Select a Diagnosis</MenuItem>
                   <MenuItem value="Malignant neoplasm of head of pancreas">
@@ -79,10 +71,11 @@ function AddDiagnosis({
                 </Select>
               </FormControl>
             </div>
+
             <div className="form-button">
-              <FormButton label={"Add"} type="submit" />
+              <FormButton label="Add" type="submit" />
               <FormButton
-                label={"Close"}
+                label="Close"
                 onClick={handleAddDiagnosisModalClose}
               />
             </div>

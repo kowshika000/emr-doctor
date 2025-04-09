@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -9,8 +9,12 @@ import {
   Grid,
 } from "@mui/material";
 import FormInput from "../../../component/FormInput";
+import { useDispatch } from "react-redux";
+import { fetchAddMedHistory } from "../../../Redux/slice/DoctSlice/POST/addMedHistorySlice";
+import { fetchMedicalHistory } from "../../../Redux/slice/DoctSlice/GET/medicalHistorySlice";
 
-const DisplayMdlHistory = () => {
+const DisplayMdlHistory = ({ patientId, appointmentId }) => {
+  const dispatch = useDispatch();
   const [addHistoryMdl, setAddHistoryMdl] = useState(false);
   const [expanded, setExpanded] = useState(null);
   const [nilSignificant, setNilSignificant] = useState({});
@@ -177,24 +181,138 @@ const DisplayMdlHistory = () => {
     }));
   };
 
-  const handleSubmit = () => {
-    const groupedData = historyData.reduce((acc, item) => {
-      const filteredFields = item.fields
-        .map((field) => {
-          const key = `${item.title}-${field}`;
-          return formData[key] ? { label: field, value: formData[key] } : null;
-        })
-        .filter(Boolean);
-
-      if (filteredFields.length > 0) {
-        acc.push({ title: item.title, fields: filteredFields });
-      }
-      return acc;
-    }, []);
-    setSubmittedData((prev) => [...prev, ...groupedData]);
-    setFormData({});
-    setAddHistoryMdl(false);
+  const getMedicalHistory = () => {
+    dispatch(fetchMedicalHistory({ appointmentId }));
   };
+
+  useEffect(() => {
+    getMedicalHistory();
+  }, [dispatch]);
+
+  const filterEmptyFields = (obj) => {
+    return Object.fromEntries(
+      Object.entries(obj).filter(([_, value]) => value !== "" && value !== null && value !== undefined)
+    );
+  };
+  
+  const handleSubmit = () => {
+    const payload = {
+      appointmentId, // Set if needed
+      medicalHxDTO: filterEmptyFields({
+        pastMedicalHx: formData["Medical History-Past Medical History"],
+        pastSurgicalHx: formData["Medical History-Past Surgical History"],
+        pastTreatmentHx: formData["Medical History-Past Treatment History"],
+        specialHabits: formData["Medical History-Special Habits"],
+        occHazards: formData["Medical History-Occupational Hazards"],
+        socioEconomicHx: formData["Medical History-Socio-economic History"],
+        hypertension: formData["Medical History-Hypertension (B P)"],
+        diabetes: formData["Medical History-Diabetes (Sugar)"],
+        hyperAcidity: formData["Medical History-Hyper Acidity"],
+        cardiacDisease: formData["Medical History-Cardiac Disease (Heart)"],
+        birthWeight: formData["Medical History-Birth Weight"],
+        pregnancy: formData["Medical History-Pregnancy"],
+        delivery: formData["Medical History-Delivery"],
+        neonatal: formData["Medical History-Neonatal"],
+        developmentHx: formData["Medical History-Development History"],
+        dietHx: formData["Medical History-Diet History"],
+        medicalHx: formData["Medical History-Medical History"],
+        pacemaker: formData["Medical History-Pacemaker"],
+      }),
+      menstrualHxDTO: filterEmptyFields({
+        lmp: formData["Menstrual History-LMP (date)"],
+        regular: formData["Menstrual History-Regular"],
+        since: formData["Menstrual History-Since"],
+        every: formData["Menstrual History-Every"],
+        lasting: formData["Menstrual History-Lasting"],
+        pain: formData["Menstrual History-Pain"],
+        comments: formData["Menstrual History-Comments"],
+      }),
+      gynecPastIllnessDTO: filterEmptyFields({
+        operation: formData["Gynec - Past Illness-Operation"],
+        anesthesiaProblems: formData["Gynec - Past Illness-Anesthesia Problems"],
+        bloodProducts: formData["Gynec - Past Illness-Blood/Products"],
+        respiratoryIssues: formData["Gynec - Past Illness-Respiratory Issues"],
+        renalDisease: formData["Gynec - Past Illness-Renal Disease"],
+        diabetes: formData["Gynec - Past Illness-Diabetes"],
+        cardiacProblems: formData["Gynec - Past Illness-Cardiac Problems"],
+        gynecologicIssues: formData["Gynec - Past Illness-Gynecologic Issues"],
+        thromboembolism: formData["Gynec - Past Illness-Thromboembolism"],
+        hypertension: formData["Gynec - Past Illness-Hypertension"],
+        cnsDisorderMigraine: formData["Gynec - Past Illness-CNS Disorder/Migraine"],
+        psychiatricEatingDisorder: formData["Gynec - Past Illness-Psychiatric or Eating Disorder"],
+        substanceUse: formData["Gynec - Past Illness-Substance Use"],
+        sti: formData["Gynec - Past Illness-STI"],
+        edd: formData["Gynec - Past Illness-EDD"],
+        others: formData["Gynec - Past Illness-Others"],
+      }),
+      presentPregnancyDTO: filterEmptyFields({
+        currentMedications: formData["Present Pregnancy-Current Medications"],
+        prePregnancyMedication: formData["Present Pregnancy-Pre-pregnancy Medication"],
+        preConceptualFolicAcid: formData["Present Pregnancy-Pre-conceptual Folic Acid"],
+        depressionAnxiety: formData["Present Pregnancy-Depression/Anxiety"],
+        bleeding: formData["Present Pregnancy-Bleeding"],
+        receivedImmuneGlobulin: formData["Present Pregnancy-Received Immune Globulin"],
+        pyrexia: formData["Present Pregnancy-Pyrexia"],
+        infection: formData["Present Pregnancy-Infection (e.g., UTI, STI)"],
+        nauseaVomiting: formData["Present Pregnancy-Nausea/Vomiting"],
+        smokingPrePreg: formData["Present Pregnancy-Smoking Pre-preg (per day)"],
+        wishingToQuit: formData["Present Pregnancy-Wishing to Quit"],
+        alcoholUse: formData["Present Pregnancy-Alcohol Use"],
+        substanceUse: formData["Present Pregnancy-Substance Use"],
+        threatenedPretermLabour: formData["Present Pregnancy-Threatened Preterm Labour"],
+        ffnSent: formData["Present Pregnancy-fFN Sent"],
+        lmp: formData["Present Pregnancy-LMP"],
+        others: formData["Present Pregnancy-Others"],
+      }),
+      familyHxDTO: filterEmptyFields({
+        diabetes: formData["Family History-Diabetes"],
+        hypertension: formData["Family History-Hypertension"],
+        thrombosis: formData["Family History-Thrombosis"],
+        cancer: formData["Family History-Cancer"],
+        others: formData["Family History-Others"],
+      }),
+      birthHxDTO: filterEmptyFields({
+        birthHistory: formData["Birth History-Birth History"],
+      }),
+      pastObstetricalHistoryDTO: filterEmptyFields({
+        g: formData["Past Obstetrical History-G"],
+        p: formData["Past Obstetrical History-P"],
+        nvd: formData["Past Obstetrical History-NVD"],
+        lscs: formData["Past Obstetrical History-LSCS"],
+        mode: formData["Past Obstetrical History-Mode"],
+        babyWeight: formData["Past Obstetrical History-Baby's Weight"],
+        babySex: formData["Past Obstetrical History-Baby's Sex"],
+        remarks: formData["Past Obstetrical History-Remarks"],
+        miscarriage: formData["Past Obstetrical History-Miscarriage"],
+      }),
+      sensitivityAllergyDTO: filterEmptyFields({
+        drugAllergy: formData["Sensitivity / Allergy-Drug Allergy"],
+        sensitivityAllergy: formData["Sensitivity / Allergy-Sensitivity/Allergy"],
+      }),
+      medicationHxDTO: filterEmptyFields({
+        currentMedication: formData["Medication History-Current Medications"],
+        medicationHx: formData["Medication History-Medication History"],
+      }),
+      otherHxDTO: filterEmptyFields({
+        smearHistory: formData["Other History-Smear History"],
+        sonomammogramHistory: formData["Other History-Sonomammogram History"],
+        contraception: formData["Other History-Contraception"],
+        bowelHistory: formData["Other History-Bowel History"],
+        urinaryHistory: formData["Other History-Urinary History"],
+        otherHistory: formData["Other History-Other History"],
+      }),
+    };
+  
+    dispatch(fetchAddMedHistory(payload))
+      .then(() => {
+        dispatch(fetchMedicalHistory());
+      })
+      .finally(() => {
+        setFormData({});
+        setAddHistoryMdl(false);
+      });
+  };
+  
 
   return (
     <div>
@@ -309,7 +427,7 @@ const DisplayMdlHistory = () => {
                         style={{
                           // backgroundColor: "#e4e4e4",
                           // borderRadius: "4px",
-                          borderLeft:"2px solid gray"
+                          borderLeft: "2px solid gray",
                         }}
                       >
                         {field.value}

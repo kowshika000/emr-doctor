@@ -3,17 +3,17 @@ import { Tabs } from "antd";
 import HistoryOfPresentIllness from "./historyOfPateintIllness";
 import MedicalHistory from "./medicalHistory";
 
-const Subjective = () => {
+const Subjective = ({patientId}) => {
   const items = [
     {
       key: "1",
       label: "History Of Present Illness",
-      children: <HistoryOfPresentIllness />,
+      children: <HistoryOfPresentIllness patientId={patientId} />,
     },
     {
       key: "2",
       label: "Medical History",
-      children: <MedicalHistory />,
+      children: <MedicalHistory patientId={patientId} />,
     },
   ];
 

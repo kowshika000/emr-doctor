@@ -1,49 +1,39 @@
+import React from "react";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Button,
-  Menu,
-  MenuItem,
 } from "@mui/material";
-import { useState } from "react";
-import CustomTable from "../../../components/Table";
+import { Table } from "antd";
 
-function DiagnosisHistory({
-  handleDiagnosisHistoryModalClose,
-  diagnosisAdded,
-  setupdatedDiagnosis,
-}) {
-  const [currentRow, setCurrentRow] = useState(null);
-  const [anchorEl, setAnchorEl] = useState(null);
+function DiagnosisHistory({ handleDiagnosisHistoryModalClose, data }) {
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleOptionsClick = (event, row) => {
-    event.preventDefault();
-    setAnchorEl(event.currentTarget);
-    setCurrentRow(row);
-  };
-
-  const handleAddDiagnosis = () => {
-    setupdatedDiagnosis((prev) => [...prev, currentRow]);
-  };
 
   const columns = [
-    { field: "id", headerName: "S.No", flex: 1 },
-    { field: "category", headerName: "Category", flex: 1 },
-    { field: "IcdCode", headerName: "ICD Code", flex: 1 },
-    { field: "diagnosis", headerName: "Diagnosis", flex: 1 },
     {
-      field: "options",
-      headerName: "Options",
-      flex: 1,
+      title: "S.No",
+      dataIndex: "sno",
+      key: "sno",
+      render: (text, record, index) => index + 1,
     },
+    {
+      title: "Category",
+      dataIndex: "category",
+      key: "category",
+    },
+    {
+      title: "Diagnosis",
+      dataIndex: "diagnosis",
+      key: "diagnosis",
+    },
+    // {
+    //   title: "Options",
+    //   key: "options",
+    //   render: (text, row) => <Button onClick={handleAddDiagnosis}>Add</Button>,
+    // },
   ];
-
   return (
     <Dialog
       open={true}
@@ -54,19 +44,12 @@ function DiagnosisHistory({
       <form>
         <DialogTitle>View Complaints</DialogTitle>
         <DialogContent>
-          <CustomTable
-            rows={diagnosisAdded}
+          <Table
+            dataSource={data}
             columns={columns}
-            onOptionClick={handleOptionsClick}
-          
+            rowKey="id"
+            className="table-container"
           />
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleClose}
-          >
-            <MenuItem onClick={handleAddDiagnosis}>Add</MenuItem>
-          </Menu>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDiagnosisHistoryModalClose} color="secondary">

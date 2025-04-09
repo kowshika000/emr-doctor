@@ -3,13 +3,13 @@ import Consultation from "./Consultation";
 import Progress from "./ProgressNotes";
 import Discharge from "./Discharge";
 
-const PhysicianNotes = () => {
+const PhysicianNotes = ({ patientId }) => {
   return (
     <div className="full-screen-scrollable">
       <h6>Admission Notes</h6>
-      <Consultation />
-      <Progress />
-      <Discharge />
+      <Consultation patientId={patientId} />
+      <Progress patientId={patientId}/>
+      <Discharge patientId={patientId}/>
     </div>
   );
 };
