@@ -2,72 +2,78 @@ import { Dialog, DialogContent, Box } from "@mui/material";
 import React, { useState } from "react";
 import FormInput from "../../../component/FormInput";
 import FormButton from "../../../component/FormButton";
+import { useDispatch } from "react-redux";
+import { fetchAddVital } from "../../../Redux/slice/DoctSlice/POST/addVitalSlice";
 
-export const AddVital = ({ handleCloseAddVital, onAddVital }) => {
+export const AddVital = ({ handleCloseAddVital, appointmentId, getVital }) => {
+  const dispatch = useDispatch();
   const [vitalData, setVitalData] = useState({
     temperature: "",
-    systolicBP: "",
-    diastolicBP: "",
+    bpSystolic: "",
+    bpDiastolic: "",
     pulse: "",
-    respiratoryRate: "",
+    respiratory: "",
     o2Saturation: "",
     bloodSugar: "",
   });
 
-  const handleChange = (field, value) => {
-    setVitalData({ ...vitalData, [field]: value });
+  const handleChange = (field) => (value) => {
+    setVitalData((prev) => ({
+      ...prev,
+      [field]: value || "", 
+    }));
   };
 
   const handleAdd = () => {
-    onAddVital(vitalData);
-    handleCloseAddVital();
+    dispatch(fetchAddVital({ ...vitalData, appointmentId }))
+      .then(() => getVital()) // Ensure data is fetched after adding
+      .finally(() => handleCloseAddVital()); // Close dialog after completion
   };
-
   return (
-    <Dialog open={true} onClose={handleCloseAddVital} maxWidth="md">
+    <Dialog open={true} onClose={handleCloseAddVital} maxWidth="md" fullWidth>
       <DialogContent>
         <Box>
           <div className="header-text">Add Vital Sign</div>
-          <div className="form-container form-bg">
+          <div className="form-container form-bg mt-2">
             <FormInput
-              label={"Temperature (°C)"}
+              label="Temperature (°C)"
               value={vitalData.temperature}
-              onChange={(e) => handleChange("temperature", e.target.value)}
+              onChange={handleChange("temperature")}
             />
             <FormInput
-              label={"B.P (Systolic) (mmHg)"}
-              value={vitalData.systolicBP}
-              onChange={(e) => handleChange("systolicBP", e.target.value)}
+              label="B.P (Systolic) (mmHg)"
+              value={vitalData.bpSystolic}
+              onChange={handleChange("bpSystolic")}
             />
             <FormInput
-              label={"B.P (Diastolic) (mmHg)"}
-              value={vitalData.diastolicBP}
-              onChange={(e) => handleChange("diastolicBP", e.target.value)}
+              label="B.P (Diastolic) (mmHg)"
+              value={vitalData.bpDiastolic}
+              onChange={handleChange("bpDiastolic")}
             />
             <FormInput
-              label={"Pulse (BPM)"}
+              label="Pulse (BPM)"
               value={vitalData.pulse}
-              onChange={(e) => handleChange("pulse", e.target.value)}
+              onChange={handleChange("pulse")}
             />
             <FormInput
-              label={"Respiratory (rpm)"}
-              value={vitalData.respiratoryRate}
-              onChange={(e) => handleChange("respiratoryRate", e.target.value)}
+              label="Respiratory (rpm)"
+              value={vitalData.respiratory}
+              onChange={handleChange("respiratory")}
             />
             <FormInput
-              label={"O2 Saturation (%)"}
+              label="O2 Saturation (%)"
               value={vitalData.o2Saturation}
-              onChange={(e) => handleChange("o2Saturation", e.target.value)}
+              onChange={handleChange("o2Saturation")}
             />
             <FormInput
-              label={"Blood Sugar (mmol/L)"}
+              label="Blood Sugar (mmol/L)"
               value={vitalData.bloodSugar}
-              onChange={(e) => handleChange("bloodSugar", e.target.value)}
+              onChange={handleChange("bloodSugar")}
             />
           </div>
 
           <Box sx={{ mt: 3, textAlign: "center" }}>
-            <FormButton label={"Add"} onClick={handleAdd} />
+            <FormButton label="Add" onClick={handleAdd} />
           </Box>
         </Box>
       </DialogContent>

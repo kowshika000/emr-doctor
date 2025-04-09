@@ -1,70 +1,71 @@
 import React, { useState } from "react";
 import {
-  Button,
   Dialog,
-  DialogActions,
   DialogContent,
-  TextField,
-  Grid,
-  MenuItem,
+  DialogActions,
+  List,
+  ListItem,
+  ListItemText,
+  Typography,
+  Button,
+  Box,
   Radio,
   RadioGroup,
   FormControlLabel,
   FormLabel,
-  Select,
-  InputLabel,
-  FormControl,
-  List,
-  ListItem,
-  ListItemText,
-  Box,
 } from "@mui/material";
-import { useFormik, FormikProvider } from "formik";
+import FormInput from "../../../component/FormInput";
+import { useDispatch } from "react-redux";
+import { createInvestigation } from "../../../Redux/slice/OpSlice/POST/investigationSlice";
 
-function AddInvestigation({ handleAddInvestigationModalClose, investigation }) {
+const labTests = [
+  "Complete blood count (CBC)",
+  "Lipid panel",
+  "Thyroid function tests",
+  "Urinalysis",
+];
+
+function AddInvestigation({
+  handleAddInvestigationModalClose,
+  investigation,
+  getInvestigation,
+  patientId,
+}) {
+  const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
-
-  const formik = useFormik({
-    initialValues: {
-      id: "",
-      procedureName: "",
-      insurance: "",
-      preApp: "",
-      quantity: "",
-      price: "",
-      serviceStatus: "",
-      billStatus: "",
-      remarks: "",
-      discount: "",
-      emergency: "",
-      covered: "",
-      serviceBy: "",
-      serviceDatetime: new Date().toISOString(),
-      labTestName: "", // Added this field for lab test selection
-    },
-    onSubmit: (values) => {
-      investigation(values);
-      handleAddInvestigationModalClose();
-    },
+  const [formValues, setFormValues] = useState({
+    labTestName: "",
+    price: "",
+    quantity: "",
+    discount: "",
+    emergency: "",
+    covered: "",
+    remarks: "",
   });
 
-  const labTestName = [
-    "Complete blood count (CBC)",
-    "Lipid panel",
-    "Thyroid function tests",
-    "Urinalysis",
-  ];
-
-  // Filter diagnoses based on search query
-  const filteredLabTest = labTestName.filter((labTest) =>
-    labTest.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  // Handle selection of a labTest
-  const handleSelectLabTest = (labTest) => {
-    formik.setFieldValue("labTestName", labTest); // Set selected labTest
-    setSearchQuery(""); // Clear search query
+  const handleChange = (field) => (value) => {
+    setFormValues((prev) => ({ ...prev, [field]: value }));
   };
+
+  const handleSelectLabTest = (labTest) => {
+    setFormValues((prev) => ({ ...prev, labTestName: labTest }));
+    setSearchQuery("");
+  };
+
+  const handleSubmit = () => {
+    dispatch(createInvestigation({...formValues, patientId }))
+      .then(() => {
+        getInvestigation();
+        handleAddInvestigationModalClose();
+      })
+      .catch((error) => {
+        console.error("Error creating investigation:", error);
+      });
+  };
+
+  const filteredLabTests = labTests.filter((test) =>
+    test.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <Dialog
@@ -73,158 +74,107 @@ function AddInvestigation({ handleAddInvestigationModalClose, investigation }) {
       maxWidth="md"
       fullWidth
     >
-      <FormikProvider value={formik}>
-        <form onSubmit={formik.handleSubmit}>
-          <DialogContent>
-            <h6>Add Investigation</h6>
+      <DialogContent>
+        <Typography variant="h6">Add Investigation</Typography>
+        <Box display="flex" flexDirection="column" gap={2} mt={2}>
+          <FormInput
+            label="Search Investigation"
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Type to search..."
+          />
 
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Search Investigation"
-                  name="searchQuery"
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  value={searchQuery}
-                  variant="standard"
-                  placeholder="Type to search..."
-                />
-                <Box>
-                  <List
-                    style={{
-                      height: 100,
-                      overflowY: "auto",
-                      border: "1px solid #ddd",
-                      borderRadius: 4,
-                      marginTop: 8,
-                    }}
+          <Box
+            sx={{
+              height: 100,
+              overflowY: "auto",
+              border: "1px solid #ddd",
+              borderRadius: 1,
+              px: 1,
+            }}
+          >
+            <List>
+              {filteredLabTests.length > 0 ? (
+                filteredLabTests.map((test, idx) => (
+                  <ListItem
+                    key={idx}
+                    button
+                    onClick={() => handleSelectLabTest(test)}
                   >
-                    {searchQuery &&
-                      (filteredLabTest.length > 0 ? (
-                        filteredLabTest.map((labTest, index) => (
-                          <ListItem
-                            key={index}
-                            button
-                            onClick={() => handleSelectLabTest(labTest)}
-                          >
-                            <ListItemText primary={labTest} />
-                          </ListItem>
-                        ))
-                      ) : (
-                        <ListItem>
-                          <ListItemText primary="No items found" />
-                        </ListItem>
-                      ))}
-                  </List>
-                </Box>
-              </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  fullWidth
-                  label="Lab Test Name"
-                  name="labTestName"
-                  onChange={formik.handleChange}
-                  value={formik.values.labTestName}
-                  variant="standard"
-                  disabled
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  fullWidth
-                  label="Normal Rate"
-                  name="drugForm"
-                  onChange={formik.handleChange}
-                  value={formik.values.drugForm}
-                  variant="standard"
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  fullWidth
-                  label="Quantity"
-                  name="quantity"
-                  onChange={formik.handleChange}
-                  value={formik.values.quantity}
-                  variant="standard"
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  fullWidth
-                  label="Price"
-                  name="price"
-                  onChange={formik.handleChange}
-                  value={formik.values.price}
-                  variant="standard"
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  fullWidth
-                  label="Discount"
-                  name="discount"
-                  onChange={formik.handleChange}
-                  value={formik.values.discount}
-                  variant="standard"
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <FormControl fullWidth variant="standard">
-                  <InputLabel>Emergency</InputLabel>
-                  <Select
-                    name="emergency"
-                    value={formik.values.emergency}
-                    onChange={formik.handleChange}
-                  >
-                    <MenuItem value="Yes">Yes</MenuItem>
-                    <MenuItem value="No">No</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={4}>
-                <FormLabel>Covered</FormLabel>
-                <RadioGroup
-                  row
-                  name="covered"
-                  value={formik.values.covered}
-                  onChange={formik.handleChange}
-                >
-                  <FormControlLabel value="No" control={<Radio />} label="No" />
-                  <FormControlLabel
-                    value="Yes"
-                    control={<Radio />}
-                    label="Yes"
-                  />
-                </RadioGroup>
-              </Grid>
-              <Grid item xs={8}>
-                <TextField
-                  fullWidth
-                  multiline
-                  rows={3}
-                  label="Remarks"
-                  name="remarks"
-                  onChange={formik.handleChange}
-                  value={formik.values.remarks}
-                  variant="standard"
-                />
-              </Grid>
-            </Grid>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              onClick={handleAddInvestigationModalClose}
-              color="secondary"
+                    <ListItemText primary={test} />
+                  </ListItem>
+                ))
+              ) : (
+                <ListItem>
+                  <ListItemText primary="No items found" />
+                </ListItem>
+              )}
+            </List>
+          </Box>
+
+          <FormInput
+            label="Lab Test Name"
+            value={formValues.labTestName}
+            onChange={() => {}}
+            // disabled
+          />
+
+          <FormInput
+            label="Price"
+            value={formValues.price}
+            onChange={handleChange("price")}
+          />
+
+          <FormInput
+            label="Quantity"
+            value={formValues.quantity}
+            onChange={handleChange("quantity")}
+          />
+
+          <FormInput
+            label="Discount"
+            value={formValues.discount}
+            onChange={handleChange("discount")}
+          />
+
+          <FormInput
+            label="Emergency"
+            type="select"
+            value={formValues.emergency}
+            onChange={handleChange("emergency")}
+            options={[{ label: "Yes" }, { label: "No" }]}
+          />
+
+          <Box>
+            <FormLabel>Covered</FormLabel>
+            <RadioGroup
+              row
+              name="covered"
+              value={formValues.covered}
+              onChange={(e) => handleChange("covered")(e.target.value)}
             >
-              Close
-            </Button>
-            <Button type="submit" color="primary">
-              Add
-            </Button>
-          </DialogActions>
-        </form>
-      </FormikProvider>
+              <FormControlLabel value="No" control={<Radio />} label="No" />
+              <FormControlLabel value="Yes" control={<Radio />} label="Yes" />
+            </RadioGroup>
+          </Box>
+
+          <FormInput
+            label="Remarks"
+            type="textarea"
+            value={formValues.remarks}
+            onChange={handleChange("remarks")}
+          />
+        </Box>
+      </DialogContent>
+
+      <DialogActions>
+        <Button onClick={handleAddInvestigationModalClose} color="secondary">
+          Close
+        </Button>
+        <Button onClick={handleSubmit} color="primary">
+          Add
+        </Button>
+      </DialogActions>
     </Dialog>
   );
 }

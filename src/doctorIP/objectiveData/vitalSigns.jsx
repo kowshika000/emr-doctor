@@ -4,13 +4,13 @@ import Fluid from "./vital/fluid";
 // import IpCrud from "../components/IpCRUD";
 import PainRate from "./vital/painRate";
 
-const VitalSigns = () => {
+const VitalSigns = ({appointmentId, patientId}) => {
   return (
     <div className="full-screen-scrollable">
-      <Vital />
-      <Fluid />
+      <Vital appointmentId={appointmentId} patientId={patientId} />
+      <Fluid appointmentId={appointmentId} patientId={patientId}/>
       {/* <IpCrud type={"Pain Rate"} /> */}
-      <PainRate/>
+      <PainRate appointmentId={appointmentId} patientId={patientId}/>
     </div>
   );
 };

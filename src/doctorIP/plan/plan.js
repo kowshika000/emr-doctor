@@ -8,20 +8,44 @@ import Consumable from "./Consumable";
 import OrderSheet from "./OrderSheet";
 import Diet from "./Diet";
 
-const Plan = () => {
+const Plan = ({ patientId }) => {
   const tabItems = [
-    { key: "1", label: "Investigation", children: <Investigation /> },
-    { key: "2", label: "Treatments", children: <Treatments /> },
-    { key: "3", label: "Medication", children: <Medication /> },
-    { key: "4", label: "Order Blood", children: <OrderBlood /> },
-    { key: "5", label: "Consumables", children: <Consumable /> },
-    { key: "6", label: "Order Sheet", children: <OrderSheet /> },
-    { key: "7", label: "Diet", children: <Diet /> },
+    {
+      key: "1",
+      label: "Investigation",
+      children: <Investigation patientId={patientId} />,
+    },
+    {
+      key: "2",
+      label: "Treatments",
+      children: <Treatments patientId={patientId} />,
+    },
+    {
+      key: "3",
+      label: "Medication",
+      children: <Medication patientId={patientId} />,
+    },
+    {
+      key: "4",
+      label: "Order Blood",
+      children: <OrderBlood patientId={patientId} />,
+    },
+    {
+      key: "5",
+      label: "Consumables",
+      children: <Consumable patientId={patientId} />,
+    },
+    {
+      key: "6",
+      label: "Order Sheet",
+      children: <OrderSheet patientId={patientId} />,
+    },
+    { key: "7", label: "Diet", children: <Diet patientId={patientId} /> },
   ];
 
   return (
     <div style={{ padding: 0 }}>
-      <Tabs defaultActiveKey="1" items={tabItems}  type="card" />
+      <Tabs defaultActiveKey="1" items={tabItems} type="card" />
     </div>
   );
 };

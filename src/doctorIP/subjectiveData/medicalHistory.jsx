@@ -1,10 +1,10 @@
 import React from "react";
 import DisplayMdlHistory from "./medicalHistory/DisplayMdlHistory";
 
-const MedicalHistory = () => {
+const MedicalHistory = ({ patientId, appointmentId }) => {
   return (
     <div className="full-screen-scrollable">
-      <DisplayMdlHistory />
+      <DisplayMdlHistory patientId={patientId} appointmentId={appointmentId} />
     </div>
   );
 };

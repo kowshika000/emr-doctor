@@ -21,13 +21,13 @@ const NextPatients = () => {
   return (
     <div
       style={{
-        height: "98vh",
+        // height: "98vh",
         overflow: "auto",
         maxWidth: "350px",
         padding: "10px",
         backgroundColor: isVisible ? "#00a79d" : "",
         borderRadius: "4px",
-        marginRight: isVisible ? "10px" : "",
+        margin: isVisible ? "10px" : "",
         color: "white",
       }}
     >

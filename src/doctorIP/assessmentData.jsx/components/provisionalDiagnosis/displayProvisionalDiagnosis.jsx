@@ -1,10 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Menu, MenuItem } from "@mui/material";
 import AddProvisionalDiagnosis from "./addProvisionalDiagnosis";
 import ProvisionalDiagnosisHistory from "./provisionalDiagnosisHistory";
-import CustomTable from "../../../components/Table";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchProvisionalDiagnosis } from "../../../../Redux/slice/DoctSlice/GET/provisionalSlice";
+import { DeleteOutlined } from "@ant-design/icons";
+import { Popconfirm, Table, Tooltip } from "antd";
 
-function DisplayProvisionalDiagnosis() {
+function DisplayProvisionalDiagnosis({ appointmentId, patientId }) {
+  const dispatch = useDispatch();
+
   const [addProvisionalDiagnosisModal, setAddProvisionalDiagnosisModal] =
     useState(false);
   const [
@@ -18,6 +23,15 @@ function DisplayProvisionalDiagnosis() {
     useState([]);
   const [currentRow, setCurrentRow] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
+
+  const { data } = useSelector((state) => state.docEmr?.provisional);
+
+  const getProvisionalDiagnosis = () => {
+    dispatch(fetchProvisionalDiagnosis({ patientId }));
+  };
+  useEffect(() => {
+    getProvisionalDiagnosis();
+  }, [dispatch]);
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -53,17 +67,46 @@ function DisplayProvisionalDiagnosis() {
   };
 
   const columns = [
-    { field: "id", headerName: "S.No", flex: 1 },
     {
-      field: "provisionalDiagnosis",
-      headerName: "Provisional Diagnosis",
-      flex: 1,
+      title: "S.No",
+      dataIndex: "sno",
+      key: "sno",
+      render: (text, record, index) => index + 1,
     },
-    { field: "enteredDate", headerName: " Entered Date", flex: 1 },
     {
-      field: "options",
-      headerName: "Options",
-      flex: 1,
+      title: "Provisional Diagnosis",
+      dataIndex: "provisionalDiagnosis",
+      key: "provisionalDiagnosis",
+      render: (text) => (text ? text : "--"),
+    },
+    {
+      title: "Entered Date",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      // render: (text) =>
+      //   text ? moment(text).format("DD-MM-YYYY hh:mm A") : "--",
+    },
+    {
+      title: "Entered By",
+      dataIndex: "createdBy",
+      key: "createdBy",
+      render: (text) => (text ? text : "--"),
+    },
+    {
+      title: "Options",
+      key: "options",
+      render: (_, record) => (
+        <Popconfirm
+          title="Are you sure to delete this diagnosis?"
+          onConfirm={() => handleMenuClick("delete", record)}
+          okText="Yes"
+          cancelText="No"
+        >
+          <Tooltip title="Delete">
+            <DeleteOutlined style={{ color: "red", cursor: "pointer" }} />
+          </Tooltip>
+        </Popconfirm>
+      ),
     },
   ];
 
@@ -93,10 +136,12 @@ function DisplayProvisionalDiagnosis() {
           </div>
         </div>
 
-        <CustomTable
-          rows={updatedProvisionalDiagnosis}
+        <Table
+          dataSource={data}
           columns={columns}
-          onOptionClick={handleClick}
+          rowKey="id"
+          pagination={false}
+          className="table-container"
         />
         <Menu
           anchorEl={anchorEl}
@@ -113,6 +158,8 @@ function DisplayProvisionalDiagnosis() {
           }
           ProvisionalDiagnosis={ProvisionalDiagnosis}
           currentPlanCount={provisionalDiagnosisAdded.length}
+          getProvisionalDiagnosis={getProvisionalDiagnosis}
+          patientId={patientId}
         />
       )}
       {provisionalDiagnosisHistoryModal && (

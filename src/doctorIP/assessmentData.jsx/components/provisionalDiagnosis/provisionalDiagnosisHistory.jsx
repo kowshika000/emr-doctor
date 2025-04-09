@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import CustomTable from "../../../components/Table";
 import { useState } from "react";
+import React from "react";
 
 function ProvisionalDiagnosisHistory({
   handleProvisionalDiagnosisHistoryModalClose,

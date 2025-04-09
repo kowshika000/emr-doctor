@@ -3,13 +3,13 @@ import { Box } from "@mui/material";
 import ChiefComplaint from "./hopi/chiefComplaint";
 import ReviewSystem from "./hopi/reviewSystem";
 
-const HistoryOfPresentIllness = () => {
+const HistoryOfPresentIllness = ({ patientId, appointmentId }) => {
   return (
     <>
       <Box className="full-screen-scrollable">
         {/* <h6>History Of Present Illness</h6> */}
-        <ChiefComplaint />
-        <ReviewSystem />
+        <ChiefComplaint patientId={patientId} appointmentId={appointmentId} />
+        <ReviewSystem patientId={patientId} appointmentId={appointmentId} />
       </Box>
     </>
   );

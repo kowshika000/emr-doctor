@@ -1,88 +1,75 @@
-import { useFormik } from 'formik';
-import { Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@mui/material';
+import React, { useState } from "react";
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Button,
+} from "@mui/material";
+import FormInput from "../../../../component/FormInput";
+import { useDispatch } from "react-redux";
+import { updateManagementPlan } from "../../../../Redux/slice/DoctSlice/PUT/managementSlice";
 
 function EditManagementPlan({
   editSelectedManagementPlan,
   setupdatedManagementPlan,
   handleEditManagementPlanModalClose,
-  updatedManagementPlan
+  getManagementPlan,
 }) {
-  const formik = useFormik({
-    initialValues: editSelectedManagementPlan,
-    enableReinitialize: true,
-    onSubmit: (values) => {
-      // Find the index of the row to update
-      let index = updatedManagementPlan.findIndex((item) => item.id === values.id);
+  const dispatch = useDispatch();
 
-      if (index !== -1) {
-        // Create a new array with the updated row
-        const updatedPlans = [...updatedManagementPlan];
-        updatedPlans[index] = values; // Update the existing row
-        setupdatedManagementPlan(updatedPlans); // Update the state
-      }
+  const [formData, setFormData] = useState(editSelectedManagementPlan);
 
-      handleEditManagementPlanModalClose(); // Close the dialog
-    }
-  });
+  const handleChange = (name, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const payload = {
+      id: formData.id,
+      appointmentId: formData.doctorAppointment?.appointmentId,
+      plan: formData.plan,
+    };
+    dispatch(updateManagementPlan(payload))
+      .unwrap()
+      .then(() => {
+        getManagementPlan();
+        setFormData({});
+        handleEditManagementPlanModalClose();
+      })
+      .catch((error) => {
+        console.error("Failed to create diagnosis:", error);
+      });
+  };
 
   return (
-    <Dialog open={true} onClose={handleEditManagementPlanModalClose} maxWidth="sm" fullWidth>
-      <form onSubmit={formik.handleSubmit}>
-        <DialogTitle>Edit Management Plan</DialogTitle>
+    <Dialog
+      open={true}
+      onClose={handleEditManagementPlanModalClose}
+      maxWidth="sm"
+      fullWidth
+    >
+      <form onSubmit={handleSubmit}>
         <DialogContent>
-          <div className="form-group">
-            <label htmlFor="id">ID</label>
-            <input
-              type="text"
-              className="form-control"
-              id="id"
-              name="id"
-              placeholder="Enter ID"
-              onChange={formik.handleChange}
-              value={formik.values.id || ''}
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="plan">Plan</label>
-            <input
-              type="text"
-              className="form-control"
-              id="plan"
-              name="plan"
-              placeholder="Enter the plan"
-              onChange={formik.handleChange}
-              value={formik.values.plan || ''}
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="enteredBy">Enter By</label>
-            <input
-              type="text"
-              className="form-control"
-              id="enteredBy"
-              name="enteredBy"
-              placeholder="Enter your name"
-              onChange={formik.handleChange}
-              value={formik.values.enteredBy || ''}
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="enteredDate">Entered Date and Time </label>
-            <input
-              type="text"
-              className="form-control"
-              id="enteredDate"
-              name="enteredDate"
-              onChange={formik.handleChange}
-              value={formik.values.enteredDate || ''}
-            />
-          </div>
+          <h6 className="mb-3">Edit Management Plan</h6>
+          <FormInput
+            label="Plan"
+            id="plan"
+            name="plan"
+            placeholder="Enter the plan"
+            value={formData.plan || ""}
+            onChange={(value) => handleChange("plan", value)}
+          />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleEditManagementPlanModalClose} color="secondary">
+          <Button
+            onClick={handleEditManagementPlanModalClose}
+            color="secondary"
+          >
             Close
           </Button>
           <Button type="submit" color="primary">

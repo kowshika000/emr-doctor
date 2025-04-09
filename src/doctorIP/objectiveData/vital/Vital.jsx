@@ -1,117 +1,89 @@
-import React, { useState } from "react";
-import { AddVital } from "./addVital";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Table, Button } from "antd";
+import { fetchVital } from "../../../Redux/slice/DoctSlice/GET/vitalSlice";
+import { AddVital } from "./AddVital"; // Assuming AddVital is your custom component for adding vitals
 
-export const Vital = () => {
+export const Vital = ({ appointmentId, patientId }) => {
+  const dispatch = useDispatch();
   const [addVital, setAddVital] = useState(false);
-  const [vitalSigns, setVitalSigns] = useState([]);
 
-  const handleCloseAddVital = () => {
-    setAddVital(false);
+  const data = useSelector((state) => state?.docEmr?.showVital.vitaldata);
+
+  const getVital = () => {
+    dispatch(fetchVital({ appointmentId }));
   };
 
-  const handleAddVital = (newVital) => {
-    setVitalSigns([...vitalSigns, newVital]);
-  };
+  useEffect(() => {
+    getVital();
+  }, [dispatch]);
+
+  const columns = [
+    {
+      title: "Temperature (°C)",
+      dataIndex: "temperature",
+      key: "temperature",
+    },
+    {
+      title: "B.P (Systolic) (mmHg)",
+      dataIndex: "bpSystolic",
+      key: "bpSystolic",
+    },
+    {
+      title: "B.P (Diastolic) (mmHg)",
+      dataIndex: "bpDiastolic",
+      key: "bpDiastolic",
+    },
+    {
+      title: "Pulse (BPM)",
+      dataIndex: "pulse",
+      key: "pulse",
+    },
+    {
+      title: "Respiratory (rpm)",
+      dataIndex: "respiratory",
+      key: "respiratory",
+    },
+    {
+      title: "O₂ Saturation (%)",
+      dataIndex: "o2Saturation",
+      key: "o2Saturation",
+    },
+    {
+      title: "Entered Data",
+      dataIndex: "createdOn",
+      key: "createdOn",
+      render: (text) => (text ? text : "--"),
+    },
+    {
+      title: "Entered By",
+      dataIndex: "createdBy",
+      key: "createdBy",
+      render: (text) => (text ? text : "--"),
+    },
+  ];
 
   return (
     <div>
-      <div className="header-container my-4">
+      <div className="header-container my-4 d-flex justify-content-between">
         <h6>Vital Signs</h6>
         <div className="custom-btn" onClick={() => setAddVital(true)}>
           Add Vital Signs
         </div>
       </div>
-      <div className="" style={{ borderBottom: "1px solid gray" }}>
-        {vitalSigns.length > 0 ? (
-          <ul>
-            {vitalSigns.map((vital, index) => (
-              <li key={index} className="d-flex gap-2">
-                <div>
-                  Temperature :{" "}
-                  <strong>
-                    {" "}
-                    <span className="text-primary">
-                      {" "}
-                      {vital.temperature}{" "}
-                    </span>{" "}
-                    &nbsp; °C
-                  </strong>
-                </div>
-                -
-                <div>
-                  B.P (Systolic) :{" "}
-                  <strong>
-                    {" "}
-                    <span className="text-primary">
-                      {vital.systolicBP}{" "}
-                    </span>{" "}
-                    &nbsp; mmHg
-                  </strong>
-                </div>
-                -
-                <div>
-                  B.P (Diastolic) :{" "}
-                  <strong>
-                    {" "}
-                    <span className="text-primary">
-                      {vital.diastolicBP}{" "}
-                    </span>{" "}
-                    &nbsp; mmHg
-                  </strong>
-                </div>
-                -
-                <div>
-                  Pulse :{" "}
-                  <strong>
-                    {" "}
-                    <span className="text-primary">{vital.pulse} </span> &nbsp;
-                    BPM
-                  </strong>
-                </div>
-                -
-                <div>
-                  Respiratory :{" "}
-                  <strong>
-                    {" "}
-                    <span className="text-primary">
-                      {vital.respiratoryRate}{" "}
-                    </span>{" "}
-                    &nbsp; rpm
-                  </strong>
-                </div>
-                -
-                <div>
-                  O2 Saturation :{" "}
-                  <strong>
-                    {" "}
-                    <span className="text-primary">
-                      {vital.o2Saturation}{" "}
-                    </span>{" "}
-                    &nbsp; %
-                  </strong>
-                </div>
-                -
-                <div>
-                  Blood Sugar :{" "}
-                  <strong>
-                    {" "}
-                    <span className="text-primary">
-                      {vital.bloodSugar}{" "}
-                    </span>{" "}
-                    &nbsp; mmol/L
-                  </strong>
-                </div>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No vital signs recorded.</p>
-        )}
-      </div>
+
+      <Table
+        dataSource={data || []}
+        columns={columns}
+        pagination={false}
+        className="table-container"
+      />
+
       {addVital && (
         <AddVital
-          handleCloseAddVital={handleCloseAddVital}
-          onAddVital={handleAddVital}
+          handleCloseAddVital={() => setAddVital(false)}
+          appointmentId={appointmentId}
+          getVital={getVital}
         />
       )}
     </div>

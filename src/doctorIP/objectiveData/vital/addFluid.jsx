@@ -1,9 +1,13 @@
-import { Box, Dialog, DialogContent, } from "@mui/material";
+import { Box, Dialog, DialogContent } from "@mui/material";
 import React, { useState } from "react";
 import FormInput from "../../../component/FormInput";
 import FormButton from "../../../component/FormButton";
+import { useDispatch } from "react-redux";
+import { fetchAddFluid } from "../../../Redux/slice/DoctSlice/POST/addFluidSlice";
 
-export const AddFluid = ({ handleCloseAddFluid, onAddFluid }) => {
+export const AddFluid = ({ handleCloseAddFluid, appointmentId, getFluid }) => {
+  const dispatch = useDispatch();
+
   const [fluidData, setFluidData] = useState({
     intake1Type: "",
     intake1Volume: "",
@@ -19,58 +23,63 @@ export const AddFluid = ({ handleCloseAddFluid, onAddFluid }) => {
     stoolStoma: "",
   });
 
-  const handleChange = (field, value) => {
-    setFluidData({ ...fluidData, [field]: value });
+  const handleChange = (field) => (value) => {
+    setFluidData((prev) => ({
+      ...prev,
+      [field]: value || "",
+    }));
   };
 
   const handleSubmit = () => {
-    onAddFluid(fluidData);
-    handleCloseAddFluid();
+    const payload = { ...fluidData, appointmentId };
+    dispatch(fetchAddFluid(payload))
+      .then(() => getFluid())
+      .finally(() => handleCloseAddFluid());
   };
 
   return (
-    <Dialog open={true} onClose={handleCloseAddFluid} maxWidth="md">
+    <Dialog open={true} onClose={handleCloseAddFluid} maxWidth="md" fullWidth>
       <DialogContent>
         <form>
           {/* INTAKE HEADER */}
           <Box sx={{ mb: 2 }}>
             <strong>INTAKE (mL)</strong>
           </Box>
-          <div className="form-container">
+          <div className="form-container mt-2">
             <FormInput
               label="Intake 1 Type"
               value={fluidData.intake1Type}
-              onChange={(e) => handleChange("intake1Type", e.target.value)}
+              onChange={handleChange("intake1Type")}
             />
 
             <FormInput
               label="Intake 1 Volume (mL)"
               value={fluidData.intake1Volume}
-              onChange={(e) => handleChange("intake1Volume", e.target.value)}
+              onChange={handleChange("intake1Volume")}
             />
 
             <FormInput
               label="Intake 2 Type"
               value={fluidData.intake2Type}
-              onChange={(e) => handleChange("intake2Type", e.target.value)}
+              onChange={handleChange("intake2Type")}
             />
 
             <FormInput
               label="Intake 2 Volume (mL)"
               value={fluidData.intake2Volume}
-              onChange={(e) => handleChange("intake2Volume", e.target.value)}
+              onChange={handleChange("intake2Volume")}
             />
 
             <FormInput
               label="Intake 3 Type"
               value={fluidData.intake3Type}
-              onChange={(e) => handleChange("intake3Type", e.target.value)}
+              onChange={handleChange("intake3Type")}
             />
 
             <FormInput
               label="Intake 3 Volume (mL)"
               value={fluidData.intake3Volume}
-              onChange={(e) => handleChange("intake3Volume", e.target.value)}
+              onChange={handleChange("intake3Volume")}
             />
           </div>
 
@@ -79,41 +88,41 @@ export const AddFluid = ({ handleCloseAddFluid, onAddFluid }) => {
             <strong>OUTPUT (mL)</strong>
           </Box>
 
-          <div className="form-container">
+          <div className="form-container mt-2">
             <FormInput
               label="Drain 1"
               value={fluidData.drain1}
-              onChange={(e) => handleChange("drain1", e.target.value)}
+              onChange={handleChange("drain1")}
             />
 
             <FormInput
               label="Drain 2"
               value={fluidData.drain2}
-              onChange={(e) => handleChange("drain2", e.target.value)}
+              onChange={handleChange("drain2")}
             />
 
             <FormInput
               label="Drain 3"
               value={fluidData.drain3}
-              onChange={(e) => handleChange("drain3", e.target.value)}
+              onChange={handleChange("drain3")}
             />
 
             <FormInput
               label="NG/Vomitus"
               value={fluidData.ngVomitus}
-              onChange={(e) => handleChange("ngVomitus", e.target.value)}
+              onChange={handleChange("ngVomitus")}
             />
 
             <FormInput
               label="Urine"
               value={fluidData.urine}
-              onChange={(e) => handleChange("urine", e.target.value)}
+              onChange={handleChange("urine")}
             />
 
             <FormInput
               label="Stool/Stoma"
               value={fluidData.stoolStoma}
-              onChange={(e) => handleChange("stoolStoma", e.target.value)}
+              onChange={handleChange("stoolStoma")}
             />
           </div>
 
@@ -126,4 +135,3 @@ export const AddFluid = ({ handleCloseAddFluid, onAddFluid }) => {
     </Dialog>
   );
 };
-

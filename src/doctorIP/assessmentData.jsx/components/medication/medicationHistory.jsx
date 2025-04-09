@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   Dialog,
   DialogActions,
@@ -7,13 +8,13 @@ import {
   MenuItem,
   Button,
 } from "@mui/material";
-import CustomTable from "../../../components/Table";
-import { useState } from "react";
+import { Table } from "antd";
 
 function MedicationHistory({
   handlePrescribedMedicationModalClose,
   medicationAdded,
   setupdatedMedication,
+  data,
 }) {
   const [currentRow, setCurrentRow] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -28,27 +29,85 @@ function MedicationHistory({
     setCurrentRow(row);
   };
 
-  const columns = [
-    { field: "id", headerName: "S.No", flex: 1 },
-    { field: "tradeName", headerName: "Trade Name", flex: 1 },
-    { field: "ingredientName", headerName: "Ingredient Name", flex: 1 },
-    { field: "status", headerName: "Status/Type", flex: 1 },
-    { field: "drugForm", headerName: "Drug Form/Order Type", flex: 1 },
-    { field: "dosage", headerName: "Dosage", flex: 1 },
-    { field: "frequency", headerName: "Frequency", flex: 1 },
-    { field: "roa", headerName: "ROA", flex: 1 },
-    { field: "duration", headerName: "Duration", flex: 1 },
-    { field: "remarks", headerName: "Remarks", flex: 1 },
-    {
-      field: "options",
-      headerName: "Options",
-      flex: 1,
-    },
-  ];
-
   const handleAddMedication = () => {
     setupdatedMedication((prev) => [...prev, currentRow]);
+    handleClose();
   };
+
+  const columns = [
+    {
+      title: "S.No",
+      dataIndex: "id",
+      key: "id",
+      render: (text, record, index) => index + 1,
+    },
+    {
+      title: "Trade Name",
+      dataIndex: "tradeName",
+      key: "tradeName",
+      render: (text) => text || "--",
+    },
+    {
+      title: "Ingredient Name",
+      dataIndex: "ingredientName",
+      key: "ingredientName",
+      render: (text) => text || "--",
+    },
+    {
+      title: "Status/Type",
+      dataIndex: "status",
+      key: "status",
+      render: (text) => text || "--",
+    },
+    {
+      title: "Drug Form/Order Type",
+      dataIndex: "orderType",
+      key: "orderType",
+      render: (text) => text || "--",
+    },
+    {
+      title: "Dosage",
+      dataIndex: "dosage",
+      key: "dosage",
+      render: (text) => text || "--",
+    },
+    {
+      title: "Frequency",
+      dataIndex: "frequency",
+      key: "frequency",
+      render: (text) => text || "--",
+    },
+    {
+      title: "ROA",
+      dataIndex: "roa",
+      key: "roa",
+      render: (text) => text || "--",
+    },
+    {
+      title: "Duration",
+      dataIndex: "duration",
+      key: "duration",
+      render: (text) => text || "--",
+    },
+    {
+      title: "Remarks",
+      dataIndex: "instructions",
+      key: "instructions",
+      render: (text) => text || "--",
+    },
+    {
+      title: "Options",
+      key: "options",
+      render: (_, record) => (
+        <Button
+          variant="outlined"
+          onClick={(e) => handleOptionsClick(e, record)}
+        >
+          Options
+        </Button>
+      ),
+    },
+  ];
 
   return (
     <Dialog
@@ -60,10 +119,12 @@ function MedicationHistory({
       <form>
         <DialogTitle>View Medications</DialogTitle>
         <DialogContent>
-          <CustomTable
-            rows={medicationAdded}
+          <Table
             columns={columns}
-            onOptionClick={handleOptionsClick}
+            dataSource={data}
+            rowKey={(record, index) => index}
+            pagination={false}
+            className="table-container"
           />
           <Menu
             anchorEl={anchorEl}

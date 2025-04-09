@@ -104,8 +104,11 @@ label {
   padding-left: 10px;
   padding-right: 10px;
 }
-
- thead tr:nth-child(odd) {
+.form-inputs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 180px);
+}
+thead tr:nth-child(odd) {
   background-color: #c1ebe6 !important;
   color: #000000 !important;
 }
@@ -146,8 +149,8 @@ th {
 
 td {
   padding: 1em !important;
-} 
-.css-78trlr-MuiButtonBase-root-MuiIconButton-root{
+}
+.css-78trlr-MuiButtonBase-root-MuiIconButton-root {
   padding: 0 !important;
 }
 /* .form-bg {
@@ -164,7 +167,7 @@ td {
 }
 
 .table-container .ant-table-thead > tr > th {
-  background-color: #71BBB2;
+  background-color: #71bbb2;
   color: black;
   font-weight: 500;
   padding: 10px;
@@ -187,4 +190,15 @@ td {
 }
 .ant-empty-normal {
   margin-block: 10px !important;
+}
+
+.form-button {
+  display: flex !important;
+  justify-content: center !important;
+  gap: 20px !important;
+}
+.form-container-1{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 180px);
+  gap: 16px;
 }

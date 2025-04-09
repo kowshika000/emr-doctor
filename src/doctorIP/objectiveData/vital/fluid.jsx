@@ -1,60 +1,118 @@
-import React, { useState } from "react";
-import {AddFluid} from "./addFluid"
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Table, Button } from "antd";
+import { fetchFluid } from "../../../Redux/slice/DoctSlice/GET/fluidSlice";
+import { AddFluid } from "./addFluid";
 
-const Fluid = () => {
+const Fluid = ({ appointmentId, patientId }) => {
+  const dispatch = useDispatch();
   const [addFluid, setAddFluid] = useState(false);
-  const [fluidRecords, setFluidRecords] = useState([]);
 
-  const handleCloseAddFluid = () => {
-    setAddFluid(false);
+  const data = useSelector((state) => state.docEmr?.showFluid?.fluiddata);
+
+  const getFluid = () => {
+    dispatch(fetchFluid({ appointmentId }));
   };
 
-  const handleAddFluid = (newFluid) => {
-    setFluidRecords([...fluidRecords, newFluid]);
-  };
+  useEffect(() => {
+    getFluid();
+  }, [dispatch]);
+
+  const columns = [
+    {
+      title: "Intake",
+      children: [
+        {
+          title: "Type 1",
+          dataIndex: "intake1Type",
+          key: "intake1Type",
+        },
+        {
+          title: "Volume 1 (mL)",
+          dataIndex: "intake1Volume",
+          key: "intake1Volume",
+        },
+        {
+          title: "Type 2",
+          dataIndex: "intake2Type",
+          key: "intake2Type",
+        },
+        {
+          title: "Volume 2 (mL)",
+          dataIndex: "intake2Volume",
+          key: "intake2Volume",
+        },
+        {
+          title: "Type 3",
+          dataIndex: "intake3Type",
+          key: "intake3Type",
+        },
+        {
+          title: "Volume 3 (mL)",
+          dataIndex: "intake3Volume",
+          key: "intake3Volume",
+        },
+      ],
+    },
+    {
+      title: "Output",
+      children: [
+        {
+          title: "Drain 1 (mL)",
+          dataIndex: "drain1",
+          key: "drain1",
+        },
+        {
+          title: "Drain 2 (mL)",
+          dataIndex: "drain2",
+          key: "drain2",
+        },
+        {
+          title: "Drain 3 (mL)",
+          dataIndex: "drain3",
+          key: "drain3",
+        },
+        {
+          title: "NG/Vomitus (mL)",
+          dataIndex: "ngVomitus",
+          key: "ngVomitus",
+        },
+        {
+          title: "Urine (mL)",
+          dataIndex: "urine",
+          key: "urine",
+        },
+        {
+          title: "Stool/Stoma (mL)",
+          dataIndex: "stoolStoma",
+          key: "stoolStoma",
+        },
+      ],
+    },
+  ];
 
   return (
     <div>
-      <div className="header-container my-4">
+      <div className="header-container my-4 d-flex justify-content-between">
         <h6>Fluid Signs</h6>
         <div className="custom-btn" onClick={() => setAddFluid(true)}>
           Add Fluid Signs
         </div>
       </div>
 
-      <div style={{ borderBottom: "1px solid gray", padding: "1rem 0" }}>
-        {fluidRecords.length > 0 ? (
-          <ul style={{ padding: 0, listStyle: "none" }}>
-            {fluidRecords.map((fluid, index) => (
-              <li key={index} className="mb-3">
-              <div className="fw-bold">Intake:</div>
-              <div className="d-flex flex-wrap gap-3 ms-3">
-                <div>Type 1: <span className="text-primary"><strong>{fluid.intake1Type}</strong></span>, Volume: <span className="text-primary"><strong>{fluid.intake1Volume} </strong> mL</span></div>
-                <div>Type 2: <span className="text-primary"><strong>{fluid.intake2Type}</strong></span>, Volume: <span className="text-primary"><strong>{fluid.intake2Volume} </strong> mL</span></div>
-                <div>Type 3: <span className="text-primary"><strong>{fluid.intake3Type}</strong></span>, Volume: <span className="text-primary"><strong>{fluid.intake3Volume} </strong> mL</span></div>
-              </div>
-              <div className="fw-bold mt-2">Output:</div>
-              <div className="d-flex flex-wrap gap-3 ms-3">
-                <div>Drain 1: <span className="text-primary"><strong>{fluid.drain1} </strong> mL</span></div>
-                <div>Drain 2: <span className="text-primary"><strong>{fluid.drain2} </strong> mL</span></div>
-                <div>Drain 3: <span className="text-primary"><strong>{fluid.drain3} </strong> mL</span></div>
-                <div>NG/Vomitus: <span className="text-primary"><strong>{fluid.ngVomitus} </strong> mL</span></div>
-                <div>Urine: <span className="text-primary"><strong>{fluid.urine} </strong> mL</span></div>
-                <div>Stool/Stoma: <span className="text-primary"><strong>{fluid.stoolStoma} </strong> mL</span></div>
-              </div>
-            </li>
-            
-            ))}
-          </ul>
-        ) : (
-          <p>No fluid records found.</p>
-        )}
-      </div>
+      <Table
+        dataSource={data || []}
+        columns={columns}
+        pagination={false}
+        className="table-container"
+        bordered
+      />
 
       {addFluid && (
         <AddFluid
-          handleCloseAddFluid={handleCloseAddFluid}
-          onAddFluid={handleAddFluid}
+          handleCloseAddFluid={() => setAddFluid(false)}
+          appointmentId={appointmentId}
+          getFluid={getFluid}
         />
       )}
     </div>

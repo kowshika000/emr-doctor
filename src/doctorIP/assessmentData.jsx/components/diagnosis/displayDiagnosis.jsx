@@ -1,79 +1,124 @@
-import React, { useState } from "react";
-import { Menu, MenuItem } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Table, Menu, Dropdown } from "antd";
 import AddDiagnosis from "./addDiagnosis";
 import DiagnosisHistory from "./diagnosisHistory";
-import CustomTable from "../../../components/Table";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchDiagnosis } from "../../../../Redux/slice/DoctSlice/GET/diagnosisSlice";
+import { deleteDiagnosis } from "../../../../Redux/slice/DoctSlice/DELETE/diagnosisSlice";
+import { MoreOutlined } from "@ant-design/icons";
 
-function DisplayDiagnosis() {
+function DisplayDiagnosis({ appointmentId }) {
+  const dispatch = useDispatch();
   const [addDiagnosisModal, setAddDiagnosisModal] = useState(false);
   const [diagnosisHistoryModal, setDiagnosisHistoryModal] = useState(false);
-  const [diagnosisAdded, setDiagnosisAdded] = useState([]);
-  const [updatedDiagnosis, setUpdatedDiagnosis] = useState([]);
-  const [currentRow, setCurrentRow] = useState(null);
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [localData, setLocalData] = useState([]);
 
-  const handleClose = () => {
-    setAnchorEl(null);
+  const { data } = useSelector((state) => state.docEmr?.diagnosis);
+
+  const getDiagnosis = () => {
+    dispatch(fetchDiagnosis({ appointmentId }));
   };
 
-  const handleMenuClick = (action) => {
-    handleClose();
-    if (action === "delete" && currentRow) {
-      const deleteDiagnosis = updatedDiagnosis.filter(
-        (item) => item.id !== currentRow.id
-      );
-      setUpdatedDiagnosis(deleteDiagnosis);
+  useEffect(() => {
+    getDiagnosis();
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (data && data.length > 0) {
+      // Set first item as primary, rest as secondary
+      const updatedData = data.map((item, index) => ({
+        ...item,
+        category: index === 0 ? "Primary" : "Secondary",
+      }));
+      setLocalData(updatedData);
     }
-  };
+  }, [data]);
 
-  const handleAddDiagnosisModalOpen = () => {
-    setAddDiagnosisModal(true);
-  };
+  const handleAddDiagnosisModalOpen = () => setAddDiagnosisModal(true);
+  const handleAddDiagnosisModalClose = () => setAddDiagnosisModal(false);
 
-  const handleAddDiagnosisModalClose = () => {
-    setAddDiagnosisModal(false);
-  };
-
-  const handleDiagnosisHistoryModalOpen = () => {
-    setDiagnosisHistoryModal(true);
-  };
-
-  const handleDiagnosisHistoryModalClose = () => {
+  const handleDiagnosisHistoryModalOpen = () => setDiagnosisHistoryModal(true);
+  const handleDiagnosisHistoryModalClose = () =>
     setDiagnosisHistoryModal(false);
+
+  const handleDelete = (id) => {
+    dispatch(deleteDiagnosis({ id }))
+      .unwrap()
+      .then(() => {
+        getDiagnosis();
+      })
+      .catch((error) => {
+        console.error("Failed to delete diagnosis:", error);
+      });
   };
+
+  const handleMakePrimary = (row) => {
+    const updated = localData
+      .filter((item) => item.id !== row.id) // Remove selected item
+      .map((item) => ({ ...item, category: "Secondary" })); // Set all others to secondary
+
+    const newPrimary = { ...row, category: "Primary" };
+
+    // Move selected item to the top
+    setLocalData([newPrimary, ...updated]);
+  };
+
+  const menu = (row) => (
+    <Menu>
+      {row.category !== "Primary" && (
+        <Menu.Item key="primary" onClick={() => handleMakePrimary(row)}>
+          Make Diagnosis Primary
+        </Menu.Item>
+      )}
+      <Menu.Item key="delete" onClick={() => handleDelete(row.id)}>
+        Delete Diagnosis
+      </Menu.Item>
+    </Menu>
+  );
 
   const columns = [
     {
-      field: "id",
-      headerName: "S.No",
-      flex: 1,
+      title: "S.No",
+      render: (text, record, index) => index + 1,
     },
-    { field: "category", headerName: "Category", flex: 1 },
-    { field: "IcdCode", headerName: "ICD Code", flex: 1 },
-    { field: "diagnosis", headerName: "Diagnosis", flex: 1 },
     {
-      field: "options",
-      headerName: "Options",
-      flex: 1,
+      title: "Category",
+      dataIndex: "category",
+      key: "category",
+    },
+    {
+      title: "Diagnosis",
+      dataIndex: "diagnosis",
+      key: "diagnosis",
+    },
+    {
+      title: "Entered By",
+      dataIndex: "createdBy",
+      key: "createdBy",
+      render: (text) => (text ? text : "--"),
+    },
+    {
+      title: "Entered Date",
+      dataIndex: "createdOn",
+      key: "createdOn",
+      render: (text) => (text ? text : "--"),
+    },
+    {
+      title: "Options",
+      key: "options",
+      render: (text, row) => (
+        <Dropdown overlay={menu(row)} trigger={["click"]}>
+          <MoreOutlined style={{ fontSize: 20, cursor: "pointer" }} />
+        </Dropdown>
+      ),
     },
   ];
 
-  const handleClick = (event, row) => {
-    setAnchorEl(event.currentTarget);
-    setCurrentRow(row);
-  };
-
-  const handleAddDiagnosis = (value) => {
-    setDiagnosisAdded((prev) => [...prev, value]);
-    setUpdatedDiagnosis((prev) => [...prev, value]);
-  };
-
   return (
     <div>
-      <div className=" mb-3">
+      <div className="mb-3">
         <div className="d-flex justify-content-between align-items-center my-4">
           <h6>Diagnosis</h6>
-
           <div className="d-flex gap-4">
             <div className="custom-btn" onClick={handleAddDiagnosisModalOpen}>
               Add Diagnosis
@@ -87,41 +132,27 @@ function DisplayDiagnosis() {
           </div>
         </div>
         <div className="card-body">
-          <CustomTable
-            rows={updatedDiagnosis}
+          <Table
+            dataSource={localData}
             columns={columns}
-            onOptionClick={handleClick}
+            rowKey="id"
+            className="table-container"
           />
         </div>
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleClose}
-        >
-          <MenuItem onClick={() => handleMenuClick("")}>
-            Make Diagnosis Primary
-          </MenuItem>
-          <MenuItem onClick={() => handleMenuClick("delete")}>
-            Delete Diagnosis
-          </MenuItem>
-        </Menu>
       </div>
 
-      {/* Add Diagnosis Modal */}
       {addDiagnosisModal && (
         <AddDiagnosis
           handleAddDiagnosisModalClose={handleAddDiagnosisModalClose}
-          handleAddDiagnosis={handleAddDiagnosis}
-          currentPlanCount={diagnosisAdded.length}
+          getDiagnosis={getDiagnosis}
+          appointmentId={appointmentId}
         />
       )}
 
-      {/* Diagnosis History Modal */}
       {diagnosisHistoryModal && (
         <DiagnosisHistory
           handleDiagnosisHistoryModalClose={handleDiagnosisHistoryModalClose}
-          diagnosisAdded={diagnosisAdded}
-          setupdatedDiagnosis={setUpdatedDiagnosis}
+          data={data}
         />
       )}
     </div>

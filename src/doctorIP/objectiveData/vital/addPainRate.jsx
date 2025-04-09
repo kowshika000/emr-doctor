@@ -2,22 +2,27 @@ import { Dialog, DialogContent, Box, Grid } from "@mui/material";
 import React, { useState } from "react";
 import FormInput from "../../../component/FormInput";
 import FormButton from "../../../component/FormButton";
+import { useDispatch } from "react-redux";
+import { fetchAddPainrate } from "../../../Redux/slice/DoctSlice/POST/addPainrateSlice";
 
-const AddPainRate = ({ handleCloseAddVital, onAddPainRate }) => {
+const AddPainRate = ({ handleClose, appointmentId, getPainrate }) => {
+  const dispatch = useDispatch();
   const [type, setType] = useState("");
   const [painRate, setPainRate] = useState("");
 
   const handleSubmit = () => {
-    onAddPainRate({ type, painRate });
-    handleCloseAddVital();
+    const payload = { type, painRate, appointmentId };
+    dispatch(fetchAddPainrate(payload))
+      .then(() => getPainrate())
+      .finally(() => handleClose());
   };
 
   return (
-    <Dialog open={true} onClose={handleCloseAddVital} fullWidth maxWidth="sm">
+    <Dialog open={true} onClose={handleClose} fullWidth maxWidth="sm">
       <DialogContent>
         <Box>
           <div className="header-text">Add Pain Rate</div>
-          <div className="form-container form-bg">
+          <div className="form-container form-bg mt-2">
             <FormInput
               label="Type"
               type="select"

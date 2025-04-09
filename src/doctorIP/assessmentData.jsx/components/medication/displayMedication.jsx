@@ -5,8 +5,21 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import AddMedication from "./addMedication";
 import MedicationHistory from "./medicationHistory";
 import CustomTable from "../../../components/Table";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchMedication } from "../../../../Redux/slice/OpSlice/GET/medicationSlice";
+import { Table } from "antd";
 
-function DisplayMedication() {
+function DisplayMedication({ patientId }) {
+  const dispatch = useDispatch();
+
+  const getMedication = () => {
+    dispatch(fetchMedication({ patientId }));
+  };
+  const { data } = useSelector((state) => state.docEmr?.medication);
+  useEffect(() => {
+    getMedication();
+  }, [dispatch]);
+
   const [prescribeMedicationModal, setPrescribeMedicationModal] =
     useState(false);
   const [
@@ -32,32 +45,32 @@ function DisplayMedication() {
     setprescribedMedicationHistoryModal(false);
   };
 
-  const rows = [
-    {
-      id: 1,
-      tradeName: "THIAMINE (VITAMIN B1) [100 MG/ML]",
-      ingredientName: "THIAMINE:SOLUTION FOR INJECTION (2ML, AMPOULE)",
-      status: "Active",
-      drugForm: "Injection Regular",
-      dosage: "1 Mol",
-      frequency: "1",
-      roa: "IV",
-      duration: "2",
-      remarks: "Take 1 Mol , 0-0-1 Time(s) per Day (Before Meal) For 2 Day(s).",
-    },
-  ];
-
   const columns = [
-    { field: "id", headerName: "S.No", flex: 1 },
-    { field: "tradeName", headerName: "Trade Name", flex: 1 },
-    { field: "ingredientName", headerName: "Ingredient Name", flex: 1 },
-    { field: "status", headerName: "Status/Type", flex: 1 },
-    { field: "drugForm", headerName: "Drug Form/Order Type", flex: 1 },
-    { field: "dosage", headerName: "Dosage", flex: 1 },
-    { field: "frequency", headerName: "Frequency", flex: 1 },
-    { field: "roa", headerName: "ROA", flex: 1 },
-    { field: "duration", headerName: "Duration", flex: 1 },
-    { field: "remarks", headerName: "Remarks", flex: 1 },
+    {
+      title: "S.No",
+      dataIndex: "sno",
+      key: "sno",
+      render: (text, record, index) => index + 1,
+    },
+    {
+      title: "Trade Name",
+      dataIndex: "tradeName",
+      key: "tradeName",
+      render: (text) => text || "--",
+    },
+    {
+      title: "Ingredient Name",
+      dataIndex: "ingredientName",
+      key: "ingredientName",
+      render: (text) => text || "--",
+    },
+    { title: "Status/Type", dataIndex: "status", key: "status" },
+    { title: "Drug Form/Order Type", dataIndex: "orderType", key: "orderType" },
+    { title: "Dosage", dataIndex: "dosage", key: "dosage" },
+    { title: "Frequency", dataIndex: "frequency", key: "frequency" },
+    { title: "ROA", dataIndex: "roa", key: "roa" },
+    { title: "Duration", dataIndex: "duration", key: "duration" },
+    { title: "Remarks", dataIndex: "instructions", key: "instructions" },
   ];
 
   const prescribedMedicines = (value) => {
@@ -100,7 +113,12 @@ function DisplayMedication() {
           </div>
         </div>
 
-        <CustomTable rows={medicationAdded} columns={columns} />
+        <Table
+          dataSource={data || []}
+          columns={columns}
+          pagination={false}
+          className="table-container"
+        />
       </div>
       {prescribeMedicationModal && (
         <AddMedication
@@ -108,6 +126,8 @@ function DisplayMedication() {
             handleprescribeMedicationModalClose
           }
           prescribedMedicines={prescribedMedicines}
+          patientId={patientId}
+          getMedication={getMedication}
         />
       )}
       {prescribedMedicationHistoryModal && (
@@ -117,44 +137,11 @@ function DisplayMedication() {
           }
           medicationAdded={medicationAdded}
           setupdatedMedication={setupdatedMedication}
+          data={data}
         />
       )}
     </div>
   );
 }
-
-const OptionsMenu = ({ row, updatedMedication, setupdatedMedication }) => {
-  const [anchorEl, setAnchorEl] = useState(null);
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleMenuClick = (action) => {
-    handleClose();
-    if (action === "delete") {
-      let deleteDiagnosis = updatedMedication.filter(
-        (item) => item.id !== row.id
-      );
-      setupdatedMedication(deleteDiagnosis);
-    }
-  };
-
-  return (
-    <div>
-      <IconButton onClick={handleClick}>
-        <MoreVertIcon />
-      </IconButton>
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-        <MenuItem onClick={() => handleMenuClick("delete")}>Edit</MenuItem>
-        <MenuItem onClick={() => handleMenuClick("delete")}>Delete</MenuItem>
-      </Menu>
-    </div>
-  );
-};
 
 export default DisplayMedication;

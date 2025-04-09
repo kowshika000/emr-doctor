@@ -1,22 +1,35 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import AddScannedDocument from "./addScannedDocument";
 import { Collapse, Typography, Row, Col } from "antd";
-import { FileOutlined } from "@ant-design/icons";
-import { CaretRightOutlined } from '@ant-design/icons';
+import { FileOutlined, CaretRightOutlined } from "@ant-design/icons";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchDocument } from "../../../Redux/slice/DoctSlice/GET/documentSlice";
 
 const { Panel } = Collapse;
 
 const ScannedDocuments = () => {
+  const dispatch = useDispatch();
+
   const [addScannedDocModal, setAddScannedDocModal] = useState(false);
   const [uploadDocLabDataList, setUploadLabDocDataList] = useState([]);
   const [uploadDocApprovalDataList, setUploadApprovalDocDataList] = useState(
     []
   );
 
+  const { data } = useSelector((state) => state.docEmr?.document);
+
   const handleAddScannedDocModalOpen = () => setAddScannedDocModal(true);
   const handleAddScannedDocModalClose = () => setAddScannedDocModal(false);
+
+  const getFile = () => {
+    dispatch(fetchDocument({ patientId: 472 }));
+  };
+
+  useEffect(() => {
+    getFile();
+  }, [dispatch]);
 
   const uploadDocuments = (values) => {
     if (values.docuement === "Lab") {
@@ -26,17 +39,51 @@ const ScannedDocuments = () => {
     }
   };
 
-  const getFileURL = (file) => {
+  // ✅ Guess MIME type based on file extension
+  const getMimeTypeFromFileName = (fileName) => {
+    if (!fileName) return "application/octet-stream";
+    const ext = fileName.split(".").pop().toLowerCase();
+    switch (ext) {
+      case "pdf":
+        return "application/pdf";
+      case "png":
+        return "image/png";
+      case "jpg":
+      case "jpeg":
+        return "image/jpeg";
+      case "gif":
+        return "image/gif";
+      default:
+        return "application/octet-stream";
+    }
+  };
+
+  // 🔁 Convert base64 to Blob URL with correct mime type
+  const base64ToBlobURL = (base64, mimeType = "application/octet-stream") => {
     try {
-      return URL.createObjectURL(file);
-    } catch (error) {
-      console.error("Invalid file:", file);
+      const byteString = atob(base64);
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+      }
+      const blob = new Blob([ab], { type: mimeType });
+      return URL.createObjectURL(blob);
+    } catch (err) {
+      console.error("Error converting base64 to blob:", err);
       return "#";
     }
   };
 
-  const renderDocuments = (dataList, documentType) => {
-    if (dataList.length === 0) {
+  // ✅ Updated renderAPIDocuments
+  const renderAPIDocuments = (dataList, documentType) => {
+    if (!dataList?.length) return null;
+
+    const filtered = dataList.filter(
+      (item) => item.documentType === documentType
+    );
+
+    if (!filtered.length) {
       return (
         <Typography.Text type="secondary">No documents found</Typography.Text>
       );
@@ -44,23 +91,27 @@ const ScannedDocuments = () => {
 
     return (
       <Row gutter={[16, 16]}>
-        {dataList.map((item) =>
-          item.docuement === documentType && item.file
-            ? Object.keys(item.file).map((key) => (
-                <Col span={3} key={key}>
-                  <a
-                    href={getFileURL(item.file[key])}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ display: "flex", alignItems: "center" }}
-                  >
-                    <FileOutlined style={{ marginRight: 8 }} />
-                    {item.file[key].name}
-                  </a>
-                </Col>
-              ))
-            : null
-        )}
+        {filtered.map((item, index) => {
+          const mimeType = getMimeTypeFromFileName(item.fileName);
+          const url = item.fileData
+            ? base64ToBlobURL(item.fileData, mimeType)
+            : "#";
+
+          return (
+            <Col span={3} key={index}>
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ display: "flex", alignItems: "center" }}
+                download={item.fileName} // triggers download with correct name
+              >
+                <FileOutlined style={{ marginRight: 8 }} />
+                {item.fileName || "Document"}
+              </a>
+            </Col>
+          );
+        })}
       </Row>
     );
   };
@@ -80,13 +131,15 @@ const ScannedDocuments = () => {
         accordion
         bordered={false}
         style={{ background: "#fff", borderRadius: "8px" }}
-        expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
+        expandIcon={({ isActive }) => (
+          <CaretRightOutlined rotate={isActive ? 90 : 0} />
+        )}
       >
         <Panel header="Lab" key="1">
-          {renderDocuments(uploadDocLabDataList, "Lab")}
+          {renderAPIDocuments(data, "Lab")}
         </Panel>
         <Panel header="Pre Approval" key="2">
-          {renderDocuments(uploadDocApprovalDataList, "Pre Approval")}
+          {renderAPIDocuments(data, "Pre Approval")}
         </Panel>
       </Collapse>
 

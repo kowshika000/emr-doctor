@@ -1,278 +1,258 @@
 import React, { useState } from "react";
 import {
-  Button,
   Dialog,
-  DialogActions,
   DialogContent,
-  TextField,
+  DialogActions,
   Grid,
-  MenuItem,
-  Radio,
-  RadioGroup,
-  FormControlLabel,
-  FormLabel,
-  Select,
-  InputLabel,
-  FormControl,
+  Button,
   Box,
   List,
   ListItem,
   ListItemText,
+  Typography,
 } from "@mui/material";
-import { useFormik, FormikProvider } from "formik";
+import FormInput from "../../../component/FormInput";
+import { useDispatch } from "react-redux";
+import { createTreatment } from "../../../Redux/slice/OpSlice/POST/treatment";
 
-function AddTreatment({ handleAddTreatmentModalClose, treatment }) {
+const procedureList = [
+  "Tooth Extraction",
+  "Appendix Surgery",
+  "Blood Transfusion",
+  "ECG Monitoring",
+];
+
+const dosageOptions = [
+  { label: "ml", value: "ml" },
+  { label: "mg", value: "mg" },
+];
+
+const preAppOptions = [
+  { label: "Required", value: "Required" },
+  { label: "Not Required", value: "Not Required" },
+];
+
+function AddTreatment({
+  handleAddTreatmentModalClose,
+  treatment,
+  getTreatment,
+  patientId,
+}) {
+  const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
-  const formik = useFormik({
-    initialValues: {
-      id: "",
-      procedureName: "",
-      insurance: "",
-      preApp: "",
-      quantity: "",
-      price: "",
-      serviceStatus: "",
-      billStatus: "",
-      remarks: "",
-      discount: "",
-      emergency: "",
-      covered: "",
-      serviceBy: "",
-      dosageDetails: "",
-      serviceDatetime: new Date().toISOString(),
-    },
-    onSubmit: (values) => {
-      treatment(values);
-      handleAddTreatmentModalClose();
-    },
+  const [formData, setFormData] = useState({
+    procedureName: "",
+    insuranceName: "",
+    preApp: "",
+    quantity: "",
+    price: "",
+    remarks: "",
+    discount: "",
+    covered: "",
+    serviceBy: "",
+    dosageDetails: "",
+    serviceDatetime: new Date().toISOString(),
   });
-  const labTestName = [
-    "Complete blood count (CBC)",
-    "Lipid panel",
-    "Thyroid function tests",
-    "Urinalysis",
-  ];
 
-  // Filter diagnoses based on search query
-  const filteredLabTest = labTestName.filter((labTest) =>
-    labTest.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  // Handle selection of a labTest
-  const handleSelectLabTest = (labTest) => {
-    formik.setFieldValue("labTestName", labTest); // Set selected labTest
-    setSearchQuery(""); // Clear search query
+  const handleChange = (field) => (value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  return (
-    <Dialog
-      open={true}
-      onClose={handleAddTreatmentModalClose}
-      maxWidth="md"
-      fullWidth
-    >
-      <FormikProvider value={formik}>
-        <form onSubmit={formik.handleSubmit}>
-          <DialogContent>
-            <h6>Add Treatment</h6>
-            <Grid container spacing={2}>
-              {/* <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="ID"
-                  name="id"
-                  onChange={formik.handleChange}
-                  value={formik.values.id}
-                  variant="standard"
-                />
-              </Grid> */}
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Search Procedure"
-                  name="searchQuery"
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  value={searchQuery}
-                  variant="standard"
-                  placeholder="Type to search..."
-                />
-                <Box>
-                  <List
-                    style={{
-                      height: 100,
-                      overflowY: "auto",
-                      border: "1px solid #ddd",
-                      borderRadius: 4,
-                      marginTop: 8,
-                    }}
-                  >
-                    {searchQuery &&
-                      (filteredLabTest.length > 0 ? (
-                        filteredLabTest.map((labTest, index) => (
-                          <ListItem
-                            key={index}
-                            button
-                            onClick={() => handleSelectLabTest(labTest)}
-                          >
-                            <ListItemText primary={labTest} />
-                          </ListItem>
-                        ))
-                      ) : (
-                        <ListItem>
-                          <ListItemText primary="No items found" />
-                        </ListItem>
-                      ))}
-                  </List>
-                </Box>
-              </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  fullWidth
-                  label="Lab Test"
-                  name="procedureName"
-                  onChange={formik.handleChange}
-                  value={formik.values.procedureName}
-                  variant="standard"
-                  disabled
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  fullWidth
-                  label="Normal Rate"
-                  name="drugForm"
-                  onChange={formik.handleChange}
-                  value={formik.values.drugForm}
-                  variant="standard"
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  fullWidth
-                  label="Quantity"
-                  name="quantity"
-                  onChange={formik.handleChange}
-                  value={formik.values.quantity}
-                  variant="standard"
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  fullWidth
-                  label="Price"
-                  name="price"
-                  onChange={formik.handleChange}
-                  value={formik.values.price}
-                  variant="standard"
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  fullWidth
-                  label="Discount"
-                  name="discount"
-                  onChange={formik.handleChange}
-                  value={formik.values.discount}
-                  variant="standard"
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <FormControl fullWidth variant="standard">
-                  <InputLabel>Dosage</InputLabel>
-                  <Select
-                    name="dosageDetails"
-                    value={formik.values.dosageDetails}
-                    onChange={formik.handleChange}
-                  >
-                    <MenuItem value="ml">ml</MenuItem>
-                    <MenuItem value="mg">mg</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
+  const handleSelectProcedure = (procedure) => {
+    setFormData((prev) => ({ ...prev, procedureName: procedure }));
+    setSearchQuery("");
+  };
 
-              <Grid item xs={4}>
-                <FormControl fullWidth variant="standard">
-                  <InputLabel>Pre App</InputLabel>
-                  <Select
-                    name="preApp"
-                    value={formik.values.preApp}
-                    onChange={formik.handleChange}
-                  >
-                    <MenuItem value="Required">Required</MenuItem>
-                    <MenuItem value="Not Required">Not Required</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  fullWidth
-                  label="Co-Insurance"
-                  name="insurance"
-                  onChange={formik.handleChange}
-                  value={formik.values.insurance}
-                  variant="standard"
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  fullWidth
-                  label="Service By"
-                  name="serviceBy"
-                  onChange={formik.handleChange}
-                  value={formik.values.serviceBy}
-                  variant="standard"
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  fullWidth
-                  label="Service Date and Time"
-                  name="serviceDatetime"
-                  onChange={formik.handleChange}
-                  value={formik.values.serviceDatetime}
-                  variant="standard"
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <FormLabel>Covered</FormLabel>
-                <RadioGroup
-                  row
-                  name="covered"
-                  value={formik.values.covered}
-                  onChange={formik.handleChange}
-                >
-                  <FormControlLabel value="No" control={<Radio />} label="No" />
-                  <FormControlLabel
-                    value="Yes"
-                    control={<Radio />}
-                    label="Yes"
-                  />
-                </RadioGroup>
-              </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  fullWidth
-                  multiline
-                  rows={3}
-                  label="Remarks"
-                  name="remarks"
-                  onChange={formik.handleChange}
-                  value={formik.values.remarks}
-                  variant="standard"
-                />
-              </Grid>
-            </Grid>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleAddTreatmentModalClose} color="secondary">
-              Close
-            </Button>
-            <Button type="submit" color="primary">
-              Add
-            </Button>
-          </DialogActions>
-        </form>
-      </FormikProvider>
+  const handleSubmit = () => {
+    const { serviceBy, serviceDatetime, ...rest } = formData;
+    dispatch(createTreatment({ ...rest, patientId }))
+      .then(() => {
+        getTreatment();
+        handleAddTreatmentModalClose();
+      })
+      .catch((error) => {
+        console.error("Error creating investigation:", error);
+      });
+  };
+
+  const filteredProcedures = procedureList.filter(
+    (item) =>
+      typeof item === "string" &&
+      item.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  return (
+    <Dialog open onClose={handleAddTreatmentModalClose} maxWidth="md" fullWidth>
+      <DialogContent>
+        <Typography variant="h6" mb={2}>
+          Add Treatment
+        </Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <FormInput
+              label="Search Procedure"
+              name="searchQuery"
+              value={searchQuery}
+              onChange={(value) => setSearchQuery(value)}
+              placeholder="Type to search..."
+            />
+            <Box
+              sx={{
+                height: 100,
+                overflowY: "auto",
+                border: "1px solid #ddd",
+                borderRadius: 1,
+                px: 1,
+                mt: 1,
+              }}
+            >
+              <List>
+                {searchQuery &&
+                  (filteredProcedures.length > 0 ? (
+                    filteredProcedures.map((procedure, index) => (
+                      <ListItem
+                        key={index}
+                        button
+                        onClick={() => handleSelectProcedure(procedure)}
+                      >
+                        <ListItemText primary={procedure} />
+                      </ListItem>
+                    ))
+                  ) : (
+                    <ListItem>
+                      <ListItemText primary="No items found" />
+                    </ListItem>
+                  ))}
+              </List>
+            </Box>
+          </Grid>
+
+          <Grid item xs={4}>
+            <FormInput
+              label="Procedure Name"
+              name="procedureName"
+              value={formData.procedureName}
+              onChange={handleChange("procedureName")}
+              disabled
+            />
+          </Grid>
+
+          <Grid item xs={4}>
+            <FormInput
+              label="Normal Rate"
+              name="price"
+              value={formData.price}
+              onChange={handleChange("price")}
+              type="number"
+            />
+          </Grid>
+
+          <Grid item xs={4}>
+            <FormInput
+              label="Quantity"
+              name="quantity"
+              value={formData.quantity}
+              onChange={handleChange("quantity")}
+              type="number"
+            />
+          </Grid>
+
+          <Grid item xs={4}>
+            <FormInput
+              label="Discount"
+              name="discount"
+              value={formData.discount}
+              onChange={handleChange("discount")}
+              type="number"
+            />
+          </Grid>
+
+          <Grid item xs={4}>
+            <FormInput
+              label="Dosage"
+              name="dosageDetails"
+              value={formData.dosageDetails}
+              onChange={handleChange("dosageDetails")}
+              type="select"
+              options={dosageOptions}
+            />
+          </Grid>
+
+          <Grid item xs={4}>
+            <FormInput
+              label="Pre App"
+              name="preApp"
+              value={formData.preApp}
+              onChange={handleChange("preApp")}
+              type="select"
+              options={preAppOptions}
+            />
+          </Grid>
+
+          <Grid item xs={4}>
+            <FormInput
+              label="Co-Insurance"
+              name="insuranceName"
+              value={formData.insuranceName}
+              onChange={handleChange("insuranceName")}
+              type="text"
+            />
+          </Grid>
+
+          <Grid item xs={4}>
+            <FormInput
+              label="Service By"
+              name="serviceBy"
+              value={formData.serviceBy}
+              onChange={handleChange("serviceBy")}
+              type="text"
+            />
+          </Grid>
+
+          <Grid item xs={4}>
+            <FormInput
+              label="Service Date & Time"
+              name="serviceDatetime"
+              value={formData.serviceDatetime}
+              onChange={handleChange("serviceDatetime")}
+              type="datetime-local"
+            />
+          </Grid>
+
+          <Grid item xs={4}>
+            <FormInput
+              label="Covered"
+              name="covered"
+              value={formData.covered}
+              onChange={handleChange("covered")}
+              type="select"
+              options={[
+                { label: "Yes", value: "Yes" },
+                { label: "No", value: "No" },
+              ]}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <FormInput
+              label="Remarks"
+              name="remarks"
+              value={formData.remarks}
+              onChange={handleChange("remarks")}
+              type="textarea"
+              rows={3}
+            />
+          </Grid>
+        </Grid>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleAddTreatmentModalClose} color="secondary">
+          Close
+        </Button>
+        <Button onClick={handleSubmit} color="primary" variant="contained">
+          Add
+        </Button>
+      </DialogActions>
     </Dialog>
   );
 }
