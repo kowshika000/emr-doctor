@@ -3,18 +3,18 @@ import SurgeryBookingList from "./surgeryBooking";
 import PostOpNotes from "./postOpNotes";
 import PostOpCareForm from "./postOpCareForm";
 
-const PostOperative = () => {
+const PostOperative = ({ patientId }) => {
   return (
     <div className="full-screen-scrollable">
       <div className="h5">Post-Operative</div>
       <div>
-        <SurgeryBookingList />
+        <SurgeryBookingList patientId={patientId} />
       </div>
       <div>
-        <PostOpNotes />
+        <PostOpNotes patientId={patientId} />
       </div>
       <div>
-        <PostOpCareForm />
+        <PostOpCareForm patientId={patientId} />
       </div>
     </div>
   );

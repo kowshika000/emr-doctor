@@ -1,6 +1,4 @@
 import React from "react";
-import VitalHistoryTable from "./Vitals";
-import CheifComplaints from "./CheifComplaints";
 import DiagnosisTable from "./finalDaignosis";
 import DiagnosisChecklist from "./checkList";
 import InvestigationsTable from "./Inverstigations";
@@ -8,30 +6,34 @@ import TreatmentTable from "./Treatment";
 import UCAFForm from "./Form";
 import { Vital } from "../objectiveData/vital/Vital";
 import ChiefComplaint from "../subjectiveData/hopi/chiefComplaint";
+import Investigation from "../plan/Investigation";
+import Treatments from "../plan/Treatments";
+import DisplayInvestigation from "../plan/Investigation/displayInvestigation";
+import DisplayTreatment from "../plan/Treatment/displayTreatment";
 
-const UCAF = ({patientId}) => {
+const UCAF = ({ patientId }) => {
   return (
     <div className="full-screen-scrollable">
       <div>
         <Vital patientId={patientId} />
       </div>
       <div>
-        <ChiefComplaint/>
+        <ChiefComplaint patientId={patientId} />
       </div>
       <div>
-        <DiagnosisTable/>
+        <DiagnosisTable patientId={patientId} />
       </div>
       <div>
-        <DiagnosisChecklist/>
+        <DiagnosisChecklist patientId={patientId} />
       </div>
       <div>
-        <InvestigationsTable/>
+        <DisplayInvestigation patientId={patientId} />
       </div>
       <div>
-        <TreatmentTable/>
+        <DisplayTreatment patientId={patientId} />
       </div>
       <div>
-        <UCAFForm/>
+        <UCAFForm patientId={patientId} />
       </div>
     </div>
   );

@@ -79,8 +79,8 @@ const ChiefComplaint = ({ patientId, appointmentId }) => {
 
   return (
     <div>
-      <div className="header-container">
-        <div className="header-text">Chief Complaint</div>
+      <div className="header-container ">
+        <div className="h6 ">Chief Complaint</div>
         <div className="custom-btn" onClick={() => setAddComplaint(true)}>
           Add Chief Complaint
         </div>

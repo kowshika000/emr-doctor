@@ -2,13 +2,14 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import AxiosInstance from "../../../api/AxiosInstance";
 import { API_ENDPOINTS } from "../../../api/apiEndPointend";
 
-export const createDischargeNote = createAsyncThunk(
-  "emr/addDischargeNote",
+export const updatePacuOprNote = createAsyncThunk(
+  "emr/editPacuOpr",
   async (credentials, { rejectWithValue }) => {
     try {
-      const response = await AxiosInstance.post(
-        API_ENDPOINTS.ADD_DISCHARGE_NOTE,
-        credentials
+      const response = await AxiosInstance.put(
+        API_ENDPOINTS.EDIT_PACU_OPR_NOTE,
+        null,
+        { params: credentials }
       );
       return response?.data;
     } catch (error) {
@@ -17,8 +18,8 @@ export const createDischargeNote = createAsyncThunk(
   }
 );
 
-const addDischargeNoteSlice = createSlice({
-  name: "dischargeNote",
+const editPacuOprSlice = createSlice({
+  name: "PacuOpr",
   initialState: {
     data: [],
     loading: false,
@@ -27,19 +28,19 @@ const addDischargeNoteSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(createDischargeNote.pending, (state) => {
+      .addCase(updatePacuOprNote.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(createDischargeNote.fulfilled, (state, action) => {
+      .addCase(updatePacuOprNote.fulfilled, (state, action) => {
         state.loading = false;
         state.data = action.payload.data;
       })
-      .addCase(createDischargeNote.rejected, (state, action) => {
+      .addCase(updatePacuOprNote.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
   },
 });
 
-export default addDischargeNoteSlice.reducer;
+export default editPacuOprSlice.reducer;

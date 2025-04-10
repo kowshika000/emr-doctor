@@ -3,18 +3,18 @@ import SurgeryDiagnosis from "./Diagnosis";
 import SurgicalProcedures from "./Procedures";
 import SurgeryBookingDetails from "./BookingDetails";
 
-const SurgeryOrder = () => {
+const SurgeryOrder = ({patientId}) => {
   return (
     <div className="full-screen-scrollable">
       <div className="h5">Surgery Order</div>
       <div>
-        <SurgeryDiagnosis />
+        <SurgeryDiagnosis patientId={patientId} />
       </div>
       <div>
-        <SurgicalProcedures />
+        <SurgicalProcedures patientId={patientId}/>
       </div>
       <div>
-        <SurgeryBookingDetails />
+        <SurgeryBookingDetails patientId={patientId}/>
       </div>
     </div>
   );
