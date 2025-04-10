@@ -7,33 +7,30 @@ import Vital from "../components/Vital";
 import Fluid from "../components/Fluid";
 import Medicine from "../components/Medicine";
 
-const IntraOperative = () => {
+const IntraOperative = ({ patientId }) => {
   return (
-    <div
-      className="full-screen-scrollable"
-     
-    >
+    <div className="full-screen-scrollable">
       <div className="h5">Intra-Operative</div>
       <div>
-        <SurgeryBookingList />
+        <SurgeryBookingList patientId={patientId} />
       </div>
       <div>
-        <IntraOpNotes />
+        <IntraOpNotes patientId={patientId} />
       </div>
       <div>
-        <IntraOpCareForm />
+        <IntraOpCareForm patientId={patientId} />
       </div>
       <div className="my-4">
-        <MedicalFormList />
+        <MedicalFormList patientId={patientId} />
       </div>
       <div className="my-4">
-        <Vital />
+        <Vital patientId={patientId} />
       </div>
       <div className="my-4">
-        <Fluid />
+        <Fluid patientId={patientId} />
       </div>
       <div className="my-4">
-        <Medicine />
+        <Medicine patientId={patientId} />
       </div>
     </div>
   );

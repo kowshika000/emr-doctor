@@ -64,7 +64,7 @@ export const Vital = ({ appointmentId, patientId }) => {
   ];
 
   return (
-    <div>
+    <div className="mb-4">
       <div className="header-container my-4 d-flex justify-content-between">
         <h6>Vital Signs</h6>
         <div className="custom-btn" onClick={() => setAddVital(true)}>

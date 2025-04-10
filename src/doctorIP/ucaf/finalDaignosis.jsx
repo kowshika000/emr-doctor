@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CustomTable from "../components/Table"; // Assuming you have a reusable table component
 import {
   IconButton,
@@ -12,61 +12,79 @@ import {
   TextField,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { Table } from "antd";
+import FormInput from "../../component/FormInput";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchfinalDiagnosis } from "../../Redux/slice/IpSlice/GET/finalDiagnosis";
+import { createFinalDiagnosis } from "../../Redux/slice/IpSlice/POST/finalDiagnosis";
+import { deleteFinalDiagnosis } from "../../Redux/slice/IpSlice/DELETE/finalDiagnosis";
+import { Delete } from "@material-ui/icons";
 
-const DiagnosisTable = () => {
-  const rows = [
-    {
-      slNo: 1,
-      category: "Primary",
-      icdCode: "O09.623",
-      diagnosis: "Supervision of young multigravida, third trimester",
-      enteredDate: "Fri, May 10, 2024 01:01",
-      enteredBy: "Dr. Nikola Tesla",
-      options: "Delete",
-    },
-  ];
+const DiagnosisTable = ({ patientId }) => {
+  const dispatch = useDispatch();
 
-  const [menuAnchor, setMenuAnchor] = useState(null);
-  const [selectedRow, setSelectedRow] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
-    category: "",
-    icdCode: "",
     diagnosis: "",
-    enteredBy: "",
   });
 
+  const { data } = useSelector((state) => state.docEmr?.finalDiagnosis);
+
+  useEffect(() => {
+    dispatch(fetchfinalDiagnosis({ patientId }));
+  }, [dispatch]);
+
   const columns = [
-    { field: "slNo", headerName: "Sl No", flex: 1 },
-    { field: "category", headerName: "Category", flex: 1 },
-    { field: "icdCode", headerName: "ICD Code", flex: 1 },
-    { field: "diagnosis", headerName: "Diagnosis", flex: 2 },
-    { field: "enteredDate", headerName: "Entered Date", flex: 2 },
-    { field: "enteredBy", headerName: "Entered By", flex: 2 },
     {
-      field: "options",
-      headerName: "Options",
-      flex: 1,
-      renderCell: (params) => (
-        <IconButton onClick={(event) => handleMenuOpen(event, params.row)}>
-          <MoreVertIcon />
+      dataIndex: "slNo",
+      title: "Sl No",
+      render: (text) => text || "--",
+    },
+    {
+      dataIndex: "category",
+      title: "Category",
+      render: (text) => text || "--",
+    },
+    {
+      dataIndex: "icdCode",
+      title: "ICD Code",
+      render: (text) => text || "--",
+    },
+    {
+      dataIndex: "diagnosis",
+      title: "Diagnosis",
+      render: (text) => text || "--",
+    },
+    {
+      dataIndex: "createdOn",
+      title: "Entered Date",
+      render: (text) => text || "--",
+    },
+    {
+      dataIndex: "createdBy",
+      title: "Entered By",
+      render: (text) => text || "--",
+    },
+    {
+      dataIndex: "options",
+      title: "Options",
+      render: (_, row) => (
+        <IconButton onClick={() => handleDelete(row.id)}>
+          <Delete />
         </IconButton>
       ),
     },
   ];
 
-  const handleMenuOpen = (event, row) => {
-    setMenuAnchor(event.currentTarget);
-    setSelectedRow(row);
-  };
-
-  const handleMenuClose = () => {
-    setMenuAnchor(null);
-  };
-
-  const handleDelete = () => {
-    alert(`Deleting row: ${selectedRow.slNo}`);
-    handleMenuClose();
+  const handleDelete = (id) => {
+    dispatch(deleteFinalDiagnosis({ id }))
+      .then((result) => {
+        dispatch(fetchfinalDiagnosis({ patientId }));
+        setDialogOpen(false);
+      })
+      .catch((err) => {
+        console.error("Error delete final diagnosis:", err);
+      });
   };
 
   const handleDialogOpen = () => {
@@ -77,17 +95,22 @@ const DiagnosisTable = () => {
     setDialogOpen(false);
   };
 
-  const handleFormChange = (e) => {
-    const { name, value } = e.target;
+  const handleFormChange = (field, value) => {
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [field]: value,
     }));
   };
 
   const handleSave = () => {
-    alert("Saving Final Diagnosis: " + JSON.stringify(formData));
-    setDialogOpen(false); // Close the dialog after saving
+    dispatch(createFinalDiagnosis({ ...formData, patientId }))
+      .then((result) => {
+        dispatch(fetchfinalDiagnosis({ patientId }));
+        setDialogOpen(false);
+      })
+      .catch((err) => {
+        console.error("Error creating final diagnosis:", err);
+      });
   };
 
   return (
@@ -100,60 +123,22 @@ const DiagnosisTable = () => {
       </div>
 
       <div>
-        <CustomTable
-          rows={rows}
+        <Table
+          dataSource={data || []}
           columns={columns}
-          onOptionClick={handleMenuOpen}
+          className="table-container"
         />
       </div>
-
-      <Menu
-        anchorEl={menuAnchor}
-        open={Boolean(menuAnchor)}
-        onClose={handleMenuClose}
-      >
-        <MenuItem onClick={handleDelete}>Delete</MenuItem>
-      </Menu>
 
       {/* Dialog for Adding Final Diagnosis */}
       <Dialog open={dialogOpen} onClose={handleDialogClose}>
         <DialogTitle>Add Final Diagnosis</DialogTitle>
         <DialogContent>
-          <TextField
-            label="Category"
-            fullWidth
-            variant="standard"
-            margin="normal"
-            name="category"
-            value={formData.category}
-            onChange={handleFormChange}
-          />
-          <TextField
-            label="ICD Code"
-            fullWidth
-            variant="standard"
-            margin="normal"
-            name="icdCode"
-            value={formData.icdCode}
-            onChange={handleFormChange}
-          />
-          <TextField
+          <FormInput
             label="Diagnosis"
-            fullWidth
-            variant="standard"
-            margin="normal"
             name="diagnosis"
             value={formData.diagnosis}
-            onChange={handleFormChange}
-          />
-          <TextField
-            label="Entered By"
-            fullWidth
-            variant="standard"
-            margin="normal"
-            name="enteredBy"
-            value={formData.enteredBy}
-            onChange={handleFormChange}
+            onChange={(value) => handleFormChange("diagnosis", value)}
           />
         </DialogContent>
         <DialogActions>

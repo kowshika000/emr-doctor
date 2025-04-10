@@ -3,18 +3,18 @@ import SurgeryBookingList from "./surgeryBooking";
 import PACUNotes from "./pacuOpNotes";
 import PACUCareForm from "./pacuOpCareForm";
 
-const PACUData = () => {
+const PACUData = ({patientId}) => {
   return (
     <div className="full-screen-scrollable">
       <div className="h5">PACU Data</div>
       <div>
-        <SurgeryBookingList />
+        <SurgeryBookingList patientId={patientId}/>
       </div>
       <div>
-        <PACUNotes />
+        <PACUNotes patientId={patientId}/>
       </div>
       <div>
-        <PACUCareForm />
+        <PACUCareForm patientId={patientId}/>
       </div>
     </div>
   );

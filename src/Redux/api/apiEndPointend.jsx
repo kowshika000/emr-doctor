@@ -83,4 +83,37 @@ export const API_ENDPOINTS = {
   DELETE_DISCHARGE_NOTE: "patientApi/softDeleteConsultationNote",
   EDIT_DISCHARGE_NOTE: "patientApi/updateConsultationNote",
 
+  GET_SURGERY_DIAGNOSIS: "patientApi/getSurgeryDiagnosis",
+  ADD_SURGERY_DIAGNOSIS: "patientApi/createSurgeryDiagnosis",
+  DELETE_SURGERY_DIAGNOSIS: "patientApi/deleteSurgeryDiagnosisById",
+  SEARCH_DIAGNOSIS: "patientApi/searchDiagnosis",
+  // EDIT_SURGERY_DIAGNOSIS: "patientApi/updateConsultationNote",
+
+  GET_Final_DIAGNOSIS: "patientApi/getFinalDiagnosis",
+  ADD_Final_DIAGNOSIS: "patientApi/createFinalDiagnosis",
+  DELETE_Final_DIAGNOSIS: "patientApi/deleteFinalDiagnosisById",
+
+  GET_SURGICAL_PROCEDURE: "patientApi/getSurgicalProcedures",
+  ADD_SURGICAL_PROCEDURE: "patientApi/createSurgicalProcedures",
+  DELETE_SURGICAL_PROCEDURE: "patientApi/deleteSurgicalProceduresById",
+
+  GET_PRE_OPR_NOTE: "patientApi/getPreOpNotes",
+  ADD_PRE_OPR_NOTE: "patientApi/createPreOpNotes",
+  DELETE_PRE_OPR_NOTE: "patientApi/softDeletePreOpNote",
+  EDIT_PRE_OPR_NOTE: "patientApi/updatePreOpNote",
+
+  GET_POST_OPR_NOTE: "patientApi/getPostOpNotes",
+  ADD_POST_OPR_NOTE: "patientApi/createPostOpNotes",
+  DELETE_POST_OPR_NOTE: "patientApi/softDeletePostOpNote",
+  EDIT_POST_OPR_NOTE: "patientApi/updatePostOpNote",
+
+  GET_INTRA_OPR_NOTE: "patientApi/getIntraOpNotes",
+  ADD_INTRA_OPR_NOTE: "patientApi/createIntraOpNotes",
+  DELETE_INTRA_OPR_NOTE: "patientApi/softDeleteIntraOpNote",
+  EDIT_INTRA_OPR_NOTE: "patientApi/updateIntraOpNote",
+
+  GET_PACU_OPR_NOTE: "patientApi/getPacuOpNotes",
+  ADD_PACU_OPR_NOTE: "patientApi/createPacuOpNotes",
+  DELETE_PACU_OPR_NOTE: "patientApi/softDeletePacuOpNote",
+  EDIT_PACU_OPR_NOTE: "patientApi/updatePacuOpNote",
 };
