@@ -4,10 +4,10 @@ import { API_ENDPOINTS } from "../../../api/apiEndPointend";
 
 export const fetchManagementPlan = createAsyncThunk(
   "emr_doctor/managementPlan",
-  async ({ appointmentId }, { rejectWithValue }) => {
+  async ({ patientId }, { rejectWithValue }) => {
     try {
       const response = await AxiosInstance.get(
-        `${API_ENDPOINTS.GET_MANAGEMENT_PLAN}?appointmentId=${appointmentId}`
+        `${API_ENDPOINTS.GET_MANAGEMENT_PLAN}?patientId=${patientId}`
       );
       return response?.data;
     } catch (error) {
@@ -31,6 +31,7 @@ const managementPlanSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchManagementPlan.fulfilled, (state, action) => {
+        
         state.loading = false;
         state.data = action.payload.data;
       })

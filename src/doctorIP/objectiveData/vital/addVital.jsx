@@ -5,7 +5,7 @@ import FormButton from "../../../component/FormButton";
 import { useDispatch } from "react-redux";
 import { fetchAddVital } from "../../../Redux/slice/DoctSlice/POST/addVitalSlice";
 
-export const AddVital = ({ handleCloseAddVital, appointmentId, getVital }) => {
+export const AddVital = ({ handleCloseAddVital, patientId, getVital }) => {
   const dispatch = useDispatch();
   const [vitalData, setVitalData] = useState({
     temperature: "",
@@ -25,7 +25,7 @@ export const AddVital = ({ handleCloseAddVital, appointmentId, getVital }) => {
   };
 
   const handleAdd = () => {
-    dispatch(fetchAddVital({ ...vitalData, appointmentId }))
+    dispatch(fetchAddVital({ ...vitalData, patientId }))
       .then(() => getVital()) // Ensure data is fetched after adding
       .finally(() => handleCloseAddVital()); // Close dialog after completion
   };

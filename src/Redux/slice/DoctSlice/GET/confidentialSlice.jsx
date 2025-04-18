@@ -4,10 +4,10 @@ import { API_ENDPOINTS } from "../../../api/apiEndPointend";
 
 export const fetchConfidentialStatement = createAsyncThunk(
   "emr_doctor/confidentail",
-  async ({ appointmentId }, { rejectWithValue }) => {
+  async ({ patientId }, { rejectWithValue }) => {
     try {
       const response = await AxiosInstance.get(
-        `${API_ENDPOINTS.GET_CONFIDENTIAL_STATEMENT}?appointmentId=${appointmentId}`
+        `${API_ENDPOINTS.GET_CONFIDENTIAL_STATEMENT}?patientId=${patientId}`
       );
       return response?.data;
     } catch (error) {

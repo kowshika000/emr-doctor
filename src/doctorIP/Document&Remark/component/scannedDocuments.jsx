@@ -9,14 +9,11 @@ import { fetchDocument } from "../../../Redux/slice/DoctSlice/GET/documentSlice"
 
 const { Panel } = Collapse;
 
-const ScannedDocuments = () => {
+const ScannedDocuments = ({ patientId }) => {
   const dispatch = useDispatch();
 
   const [addScannedDocModal, setAddScannedDocModal] = useState(false);
-  const [uploadDocLabDataList, setUploadLabDocDataList] = useState([]);
-  const [uploadDocApprovalDataList, setUploadApprovalDocDataList] = useState(
-    []
-  );
+ 
 
   const { data } = useSelector((state) => state.docEmr?.document);
 
@@ -24,7 +21,7 @@ const ScannedDocuments = () => {
   const handleAddScannedDocModalClose = () => setAddScannedDocModal(false);
 
   const getFile = () => {
-    dispatch(fetchDocument({ patientId: 472 }));
+    dispatch(fetchDocument({ patientId }));
   };
 
   useEffect(() => {
@@ -32,9 +29,9 @@ const ScannedDocuments = () => {
   }, [dispatch]);
 
   const uploadDocuments = (values) => {
-    if (values.docuement === "Lab") {
+    if (values.docuementType === "Lab") {
       setUploadLabDocDataList((prev) => [...prev, values]);
-    } else if (values.docuement === "Pre Approval") {
+    } else if (values.docuementType === "Pre Approval") {
       setUploadApprovalDocDataList((prev) => [...prev, values]);
     }
   };
@@ -148,6 +145,8 @@ const ScannedDocuments = () => {
           handleAddScannedDocModalClose={handleAddScannedDocModalClose}
           uploadDocuments={uploadDocuments}
           documentType={"Scanned Documents"}
+          getFile={getFile}
+          patientId={patientId}
         />
       )}
     </div>

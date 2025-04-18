@@ -38,7 +38,7 @@ const symptomsList = [
   "Test",
 ];
 
-function AddRos({ handleAddRosModalClose, reviews, getROS }) {
+function AddRos({ handleAddRosModalClose, reviews, getROS, patientId }) {
   const dispatch = useDispatch();
   const [selectedSpecialization, setSelectedSpecialization] = useState("");
   const [symptoms, setSymptoms] = useState([]);
@@ -90,7 +90,7 @@ function AddRos({ handleAddRosModalClose, reviews, getROS }) {
       allergicImmunologic: checkedItems["Allergic/Immunologic"] || false,
       integumentary: checkedItems["Integumentary"] || false,
       test: checkedItems["Test"] || false,
-      appointmentId: 707,
+      patientId,
     };
     dispatch(createROS(formattedData))
       .then(() => {

@@ -6,20 +6,14 @@ import React from "react";
 import { Box, Grid, Paper } from "@mui/material";
 import ChiefComplaint from "../../subjectiveData/hopi/chiefComplaint";
 
-function Examination({ patientId, appointmentId }) {
+function Examination({ patientId }) {
   return (
     <Box>
       <Box sx={{ p: 2 }}>
-        <ChiefComplaint patientId={patientId} appointmentId={appointmentId} />
-        <DisplayRos patientId={patientId} appointmentId={appointmentId} />
-        <DisplayClinicalExamination
-          patientId={patientId}
-          appointmentId={appointmentId}
-        />
-        <DisplayConfidentalDetails
-          patientId={patientId}
-          appointmentId={appointmentId}
-        />
+        <ChiefComplaint patientId={patientId} />
+        <DisplayRos patientId={patientId} />
+        <DisplayClinicalExamination patientId={patientId} />
+        <DisplayConfidentalDetails patientId={patientId} />
       </Box>
     </Box>
   );

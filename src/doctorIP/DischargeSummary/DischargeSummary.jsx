@@ -6,7 +6,7 @@ import { Box, Button, Typography } from "@mui/material";
 
 const DischargeSummary = () => {
   return (
-    <div className="full-screen-scrollable">
+    <div className="full-screen-scrollable mb-5">
       <h6 className="mb-4">Discharge Summary</h6>
       <div>
         <Summary />

@@ -5,13 +5,13 @@ import FormButton from "../../../component/FormButton";
 import { useDispatch } from "react-redux";
 import { fetchAddPainrate } from "../../../Redux/slice/DoctSlice/POST/addPainrateSlice";
 
-const AddPainRate = ({ handleClose, appointmentId, getPainrate }) => {
+const AddPainRate = ({ handleClose, patientId, getPainrate }) => {
   const dispatch = useDispatch();
   const [type, setType] = useState("");
   const [painRate, setPainRate] = useState("");
 
   const handleSubmit = () => {
-    const payload = { type, painRate, appointmentId };
+    const payload = { type, painRate, patientId };
     dispatch(fetchAddPainrate(payload))
       .then(() => getPainrate())
       .finally(() => handleClose());

@@ -3,26 +3,21 @@ import {
   Dialog,
   DialogContent,
   TextField,
-  List,
-  ListItem,
-  ListItemText,
   Box,
-  Button,
   Autocomplete,
+  FormControl,
 } from "@mui/material";
 import { Table, Dropdown, Menu } from "antd";
 import { MoreOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { createSurgeryDiagnosis } from "../../Redux/slice/IpSlice/POST/sugeryDiagnosis";
-import { fetchSearchSurgeryDiagnosis } from "../../Redux/slice/IpSlice/GET/searchSurgeryDiagnosis";
-import FormInput from "../../component/FormInput";
 import { fetchSurgeryDiagnosis } from "../../Redux/slice/IpSlice/GET/sugeryDiagnosis";
 import { deleteSurgeryDiagnosis } from "../../Redux/slice/IpSlice/DELETE/sugeryDiagnosis";
+import FormButton from "../../component/FormButton";
 
 const SurgeryDiagnosis = ({ patientId }) => {
   const dispatch = useDispatch();
   const [openMdl, setopenMdl] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [selectedDiagnosis, setSelectedDiagnosis] = useState(null);
   const [selectedRowId, setSelectedRowId] = useState(null);
 
@@ -73,8 +68,8 @@ const SurgeryDiagnosis = ({ patientId }) => {
     },
     {
       title: "Entered Date",
-      dataIndex: "createdOn",
-      key: "createdOn",
+      dataIndex: "createdAt",
+      key: "createdAt",
       render: (text) => (text ? text : "--"),
     },
     {
@@ -139,45 +134,41 @@ const SurgeryDiagnosis = ({ patientId }) => {
 
       <Dialog open={openMdl} onClose={() => setopenMdl(false)} fullWidth>
         <DialogContent>
-          <h6>Add Surgery Diagnosis</h6>
-          <Autocomplete
-            options={diagnosisOptions}
-            getOptionLabel={(option) => option.label}
-            value={selectedDiagnosis}
-            onChange={(event, newValue) => {
-              setSelectedDiagnosis(newValue);
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Search Diagnosis"
-                variant="standard"
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setSearchQuery(value);
-                  dispatch(fetchSearchSurgeryDiagnosis({ diagnosis: value }));
-                }}
-              />
-            )}
-            fullWidth
-            isOptionEqualToValue={(option, value) =>
-              option.value === value?.value
-            }
-          />
+          <h6 className="mb-3">Add Surgery Diagnosis</h6>
+          <FormControl fullWidth size="small">
+            <Autocomplete
+              options={diagnosisOptions}
+              getOptionLabel={(option) =>
+                typeof option === "string" ? option : option?.label || ""
+              }
+              value={selectedDiagnosis}
+              onChange={(event, newValue) => {
+                setSelectedDiagnosis(newValue);
+              }}
+              onInputChange={(event, value, reason) => {
+                if (reason === "input") {
+                  dispatch(fetchSurgeryDiagnosis({ name: value }));
+                }
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Search Diagnosis"
+                  variant="outlined"
+                  size="small"
+                  InputProps={{
+                    ...params.InputProps,
+                    autoComplete: "off",
+                  }}
+                />
+              )}
+            />
+          </FormControl>
 
-          <Box sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
-            <Button
-              variant="contained"
-              style={{ backgroundColor: "#007bff" }}
-              onClick={handleAdd}
-            >
-              Select
-            </Button>
-            <Button variant="contained" style={{ backgroundColor: "#dc3545" }}>
-              Cancel
-            </Button>
-          </Box>
-          {/* </Box> */}
+          <div className="form-button mt-3">
+            <FormButton label="Add" type="submit" onClick={handleAdd} />
+            <FormButton label="Cancel" onClick={() => setopenMdl(false)} />
+          </div>
         </DialogContent>
       </Dialog>
     </div>

@@ -20,6 +20,7 @@ const FormInput = ({
   options = [],
   required = false,
   setDependentValue,
+  step,
   ...props
 }) => {
   const [error, setError] = useState(false);
@@ -169,6 +170,9 @@ const FormInput = ({
             ...(type === "date" && { pattern: "\\d{4}-\\d{2}-\\d{2}" }),
             ...(type === "datetime-local" && {
               step: 1, // Allows seconds in datetime-local input
+            }),
+            ...(type === "time" && {
+              step: step ? step : 1, // Allows seconds in time input
             }),
           }}
           {...props}

@@ -1,11 +1,11 @@
 import React from "react";
 import LifeSupportTbl from "./Table";
 
-const LifeSupportData = () => {
+const LifeSupportData = ({patientId}) => {
   return (
     <div className="full-screen-scrollable">
       <div>
-        <LifeSupportTbl />
+        <LifeSupportTbl patientId={patientId} />
       </div>
     </div>
   );

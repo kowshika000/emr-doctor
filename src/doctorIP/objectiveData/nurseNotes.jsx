@@ -6,40 +6,39 @@ import { fetchNurseNote } from "../../Redux/slice/DoctSlice/GET/nurseNoteSlice";
 import { updateNurseNote } from "../../Redux/slice/DoctSlice/PUT/nurseNoteSlice";
 import { deleteNurseNote } from "../../Redux/slice/DoctSlice/DELETE/nurseNoteSlice";
 
-const NurseNotes = ({ patientId, appointmentId }) => {
+const NurseNotes = ({ patientId }) => {
   const dispatch = useDispatch();
   const [notes, setNotes] = useState([]);
 
   const { data } = useSelector((state) => state?.docEmr?.nurseNote);
 
   useEffect(() => {
-    if (appointmentId) {
-      dispatch(fetchNurseNote({ appointmentId }));
+    if (patientId) {
+      dispatch(fetchNurseNote({ patientId }));
     }
-  }, [dispatch, appointmentId]);
+  }, [dispatch, patientId]);
 
   useEffect(() => {
-    const loginUser = localStorage.getItem("user");
-    const parsedUser = JSON.parse(loginUser);
-
-    if (data) {
+    if (Array.isArray(data)) {
       const formattedNotes = data.map((item, index) => {
         return {
           id: item.id,
           notes: item.nurseNotes || "No data",
-          enteredDate: "--",
-          enteredBy:  "--",
+          enteredDate: item.createdAt || "--",
+          enteredBy: item.createdBy || "--",
         };
       });
 
       setNotes(formattedNotes);
+    } else {
+      setNotes([]);
     }
   }, [data]);
 
   const handleAddNote = (updatedNotes) => {
     const note = updatedNotes[updatedNotes.length - 1]?.notes || "";
-    dispatch(createNurseNote({ nurseNotes: note, appointmentId }))
-      .then(() => dispatch(fetchNurseNote({ appointmentId })))
+    dispatch(createNurseNote({ nurseNotes: note, patientId }))
+      .then(() => dispatch(fetchNurseNote({ patientId })))
       .catch((error) => console.error("Error adding note:", error));
   };
 
@@ -55,23 +54,21 @@ const NurseNotes = ({ patientId, appointmentId }) => {
       updateNurseNote({
         id: editedNote.id,
         nurseNotes: editedNote.notes,
-        appointmentId,
+        patientId,
       })
     )
-      .then(() => dispatch(fetchNurseNote({ appointmentId })))
+      .then(() => dispatch(fetchNurseNote({ patientId })))
       .catch((error) => console.error("Error updating note:", error));
   };
 
   const handleDeleteNote = (deletedNote) => {
-    console.log("deletedNote", deletedNote);
-
     if (!deletedNote || !deletedNote.id) {
       console.error("Delete failed: No valid ID found.");
       return;
     }
 
     dispatch(deleteNurseNote({ nurseNoteId: deletedNote.id }))
-      .then(() => dispatch(fetchNurseNote({ appointmentId })))
+      .then(() => dispatch(fetchNurseNote({ patientId })))
       .catch((error) => console.error("Error deleting note:", error));
   };
 
@@ -82,7 +79,7 @@ const NurseNotes = ({ patientId, appointmentId }) => {
         rows={notes}
         onAddNote={handleAddNote}
         onDeleteNote={handleDeleteNote}
-        addBtnName={"Add Post-Operative Notes"}
+        addBtnName={"Add Nurse Notes"}
         onEditNote={handleEditNote}
       />
     </div>

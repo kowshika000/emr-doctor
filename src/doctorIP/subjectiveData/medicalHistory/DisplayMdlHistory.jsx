@@ -1,444 +1,375 @@
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
-  Box,
-  Typography,
-  Checkbox,
-  FormControlLabel,
-  TextField,
-  Button,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
   Grid,
+  Typography,
+  Button,
+  TextField,
+  Card,
+  CardContent,
+  Box,
 } from "@mui/material";
-import FormInput from "../../../component/FormInput";
-import { useDispatch } from "react-redux";
-import { fetchAddMedHistory } from "../../../Redux/slice/DoctSlice/POST/addMedHistorySlice";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { createMedicalHistory } from "../../../Redux/slice/DoctSlice/POST/addMedHistorySlice";
 import { fetchMedicalHistory } from "../../../Redux/slice/DoctSlice/GET/medicalHistorySlice";
 
-const DisplayMdlHistory = ({ patientId, appointmentId }) => {
+const DisplayMdlHistory = ({ patientId }) => {
   const dispatch = useDispatch();
-  const [addHistoryMdl, setAddHistoryMdl] = useState(false);
-  const [expanded, setExpanded] = useState(null);
-  const [nilSignificant, setNilSignificant] = useState({});
-  const [submittedData, setSubmittedData] = useState([]);
-  const [formData, setFormData] = useState({});
+  const { data } = useSelector((state) => state.docEmr?.medicalHistory);
 
-  const InputField = (label, id) => (
-    <Grid item xs={12} sm={6} md={3} mb={1} key={id}>
-      <TextField
-        fullWidth
-        label={label}
-        variant="filled"
-        size="small"
-        multiline
-        // rows={2}
-        value={formData[id] || ""}
-        onChange={(e) => setFormData({ ...formData, [id]: e.target.value })}
-      />
-    </Grid>
+  const initialForm = {
+    medicalHxDTOs: [{}],
+    menstrualHxDTOs: [{}],
+    gynecPastIllnessDTOs: [{}],
+    presentPregnancyDTOs: [{}],
+    familyHxDTOs: [{}],
+    birthHxDTOs: [{}],
+    pastObstetricalHistoryDTOs: [{}],
+    sensitivityAllergyDTOs: [{}],
+    medicationHxDTOs: [{}],
+    otherHxDTOs: [{}],
+  };
+
+  const [formData, setFormData] = useState(initialForm);
+  const [showForm, setShowForm] = useState(false);
+
+  useEffect(() => {
+    if (!patientId) return;
+    dispatch(fetchMedicalHistory({ patientId }));
+    // .then((res) => {
+    //   if (res?.payload?.data) {
+    //     const data = res.payload.data;
+
+    //     const filledData = { ...initialForm };
+    //     Object.keys(filledData).forEach((key) => {
+    //       filledData[key] = data[key]?.length ? data[key] : [{}];
+    //     });
+
+    //     setFormData({ ...filledData });
+    //   }
+    // });
+  }, [patientId, dispatch]);
+
+  const handleChange = (section, index, field, value) => {
+    setFormData((prev) => {
+      const updatedSection = [...(prev[section] || [{}])];
+      updatedSection[index] = {
+        ...updatedSection[index],
+        [field]: value,
+      };
+      return {
+        ...prev,
+        [section]: updatedSection,
+      };
+    });
+  };
+  const formatLabel = (label) => {
+    return label
+      .replace(/([A-Z])/g, " $1") // add space before capital letters
+      .replace(/^./, (str) => str.toUpperCase()) // capitalize first letter
+      .replace("Hx", "History") // optional: clean up known medical shorthands
+      .trim();
+  };
+
+  const stripIds = (obj) => {
+    const newObj = {};
+    for (const key in obj) {
+      if (Array.isArray(obj[key])) {
+        newObj[key] = obj[key].map(({ id, ...rest }) => ({ ...rest }));
+      } else {
+        newObj[key] = obj[key];
+      }
+    }
+    return newObj;
+  };
+
+  const handleSubmit = () => {
+    const payload = {
+      ...stripIds(formData),
+      patientId,
+    };
+
+    dispatch(createMedicalHistory(payload)).then((res) => {
+      if (res.meta.requestStatus === "fulfilled") {
+        dispatch(fetchMedicalHistory({ patientId }));
+        setShowForm(false);
+      }
+    });
+  };
+
+  const renderSection = (title, sectionKey, fields) => (
+    <Accordion key={sectionKey} defaultExpanded>
+      <AccordionSummary
+        expandIcon={<ExpandMoreIcon />}
+        sx={{ bgcolor: "#f5f5f5" }}
+      >
+        <Typography variant="h6">{title}</Typography>
+      </AccordionSummary>
+      <AccordionDetails>
+        {(formData[sectionKey] || []).map((entry, index) => (
+          <Grid container spacing={2} key={index}>
+            {fields.map((field) => (
+              <Grid item xs={12} sm={6} md={4} key={field.name}>
+                <TextField
+                  fullWidth
+                  type={field.type || "text"}
+                  label={field.label}
+                  name={field.name}
+                  value={entry?.[field.name] || ""}
+                  onChange={(e) =>
+                    handleChange(sectionKey, index, field.name, e.target.value)
+                  }
+                />
+              </Grid>
+            ))}
+          </Grid>
+        ))}
+      </AccordionDetails>
+    </Accordion>
   );
 
-  const historyData = [
+  const sections = [
     {
-      id: 1,
       title: "Medical History",
+      key: "medicalHxDTOs",
       fields: [
-        "Past Medical History",
-        "Past Surgical History",
-        "Past Treatment History",
-        "Special Habits",
-        "Occupational Hazards",
-        "Socio-economic History",
-        "Hypertension (B P)",
-        "Diabetes (Sugar)",
-        "Hyper Acidity",
-        "Cardiac Disease (Heart)",
-        "Birth Weight",
-        "Pregnancy",
-        "Delivery",
-        "Neonatal",
-        "Development History",
-        "Diet History",
-        "Medical History",
-        "Pacemaker",
+        { name: "pastMedicalHx", label: "Past Medical Hx" },
+        { name: "pastSurgicalHx", label: "Past Surgical Hx" },
+        { name: "specialHabits", label: "Special Habits" },
+        { name: "hypertension", label: "Hypertension" },
+        { name: "diabetes", label: "Diabetes" },
+        { name: "cardiacDisease", label: "Cardiac Disease" },
       ],
     },
     {
-      id: 2,
       title: "Menstrual History",
+      key: "menstrualHxDTOs",
       fields: [
-        "LMP (date)",
-        "Regular",
-        "Since",
-        "Every",
-        "Lasting",
-        "Pain",
-        "Comments",
+        { name: "lmp", label: "LMP", type: "date" },
+        { name: "regular", label: "Regular" },
+        { name: "since", label: "Since" },
+        { name: "every", label: "Every" },
+        { name: "lasting", label: "Lasting" },
+        { name: "pain", label: "Pain" },
       ],
     },
     {
-      id: 3,
-      title: "Gynec - Past Illness",
+      title: "Gynec Past Illness",
+      key: "gynecPastIllnessDTOs",
       fields: [
-        "Operation",
-        "Anesthesia Problems",
-        "Blood/Products",
-        "Respiratory Issues",
-        "Renal Disease",
-        "Diabetes",
-        "Cardiac Problems",
-        "Gynecologic Issues",
-        "Thromboembolism",
-        "Hypertension",
-        "CNS Disorder/Migraine",
-        "Psychiatric or Eating Disorder",
-        "Substance Use",
-        "STI",
-        "EDD",
-        "Others",
+        { name: "operation", label: "Operation" },
+        { name: "anesthesiaProblems", label: "Anesthesia Problems" },
+        { name: "cardiacProblems", label: "Cardiac Problems" },
       ],
     },
     {
-      id: 4,
       title: "Present Pregnancy",
+      key: "presentPregnancyDTOs",
       fields: [
-        "Current Medications",
-        "Pre-pregnancy Medication",
-        "Pre-conceptual Folic Acid",
-        "Depression/Anxiety",
-        "Bleeding",
-        "Received Immune Globulin",
-        "Pyrexia",
-        "Infection (e.g., UTI, STI)",
-        "Nausea/Vomiting",
-        "Smoking Pre-preg (per day)",
-        "Wishing to Quit",
-        "Alcohol Use",
-        "Substance Use",
-        "Threatened Preterm Labour",
-        "fFN Sent",
-        "LMP",
-        "Others",
+        { name: "currentMedications", label: "Current Medications" },
+        { name: "depressionAnxiety", label: "Depression/Anxiety" },
+        { name: "bleeding", label: "Bleeding" },
       ],
     },
     {
-      id: 5,
       title: "Family History",
-      fields: ["Diabetes", "Hypertension", "Thrombosis", "Cancer", "Others"],
-    },
-    {
-      id: 6,
-      title: "Birth History",
-      fields: ["Birth History"],
-    },
-    {
-      id: 7,
-      title: "Past Obstetrical History",
+      key: "familyHxDTOs",
       fields: [
-        "G",
-        "P",
-        "NVD",
-        "LSCS",
-        "Mode",
-        "Baby's Weight",
-        "Baby's Sex",
-        "Remarks",
-        "Miscarriage",
+        { name: "diabetes", label: "Diabetes" },
+        { name: "hypertension", label: "Hypertension" },
+        { name: "cancer", label: "Cancer" },
       ],
     },
     {
-      id: 8,
-      title: "Sensitivity / Allergy",
-      fields: ["Drug Allergy", "Sensitivity/Allergy"],
+      title: "Birth History",
+      key: "birthHxDTOs",
+      fields: [{ name: "birthHistory", label: "Birth History" }],
     },
     {
-      id: 9,
-      title: "Medication History",
-      fields: ["Current Medications", "Medication History"],
-    },
-    {
-      id: 10,
-      title: "Other History",
+      title: "Past Obstetrical History",
+      key: "pastObstetricalHistoryDTOs",
       fields: [
-        "Smear History",
-        "Sonomammogram History",
-        "Contraception",
-        "Bowel History",
-        "Urinary History",
-        "Other History",
+        { name: "g", label: "Gravida" },
+        { name: "p", label: "Para" },
+        { name: "nvd", label: "NVD" },
+        { name: "lscs", label: "LSCS" },
+        { name: "babyWeight", label: "Baby Weight" },
+      ],
+    },
+    {
+      title: "Sensitivity & Allergy",
+      key: "sensitivityAllergyDTOs",
+      fields: [
+        { name: "drugAllergy", label: "Drug Allergy" },
+        { name: "sensitivityAllergy", label: "Sensitivity Allergy" },
+      ],
+    },
+    {
+      title: "Medication History",
+      key: "medicationHxDTOs",
+      fields: [
+        { name: "currentMedication", label: "Current Medication" },
+        { name: "medicationHx", label: "Medication History" },
+      ],
+    },
+    {
+      title: "Other History",
+      key: "otherHxDTOs",
+      fields: [
+        { name: "smearHistory", label: "Smear History" },
+        { name: "sonomammogramHistory", label: "Sonomammogram History" },
+        { name: "contraception", label: "Contraception" },
       ],
     },
   ];
 
-  const handleAccordionToggle = (id) => {
-    if (!nilSignificant[id]) {
-      setExpanded((prev) => (prev === id ? null : id));
-    }
-  };
-
-  const handleCheckboxChange = (id) => {
-    setNilSignificant((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
-  };
-
-  const getMedicalHistory = () => {
-    dispatch(fetchMedicalHistory({ appointmentId }));
-  };
-
-  useEffect(() => {
-    getMedicalHistory();
-  }, [dispatch]);
-
-  const filterEmptyFields = (obj) => {
-    return Object.fromEntries(
-      Object.entries(obj).filter(([_, value]) => value !== "" && value !== null && value !== undefined)
-    );
-  };
-  
-  const handleSubmit = () => {
-    const payload = {
-      appointmentId, // Set if needed
-      medicalHxDTO: filterEmptyFields({
-        pastMedicalHx: formData["Medical History-Past Medical History"],
-        pastSurgicalHx: formData["Medical History-Past Surgical History"],
-        pastTreatmentHx: formData["Medical History-Past Treatment History"],
-        specialHabits: formData["Medical History-Special Habits"],
-        occHazards: formData["Medical History-Occupational Hazards"],
-        socioEconomicHx: formData["Medical History-Socio-economic History"],
-        hypertension: formData["Medical History-Hypertension (B P)"],
-        diabetes: formData["Medical History-Diabetes (Sugar)"],
-        hyperAcidity: formData["Medical History-Hyper Acidity"],
-        cardiacDisease: formData["Medical History-Cardiac Disease (Heart)"],
-        birthWeight: formData["Medical History-Birth Weight"],
-        pregnancy: formData["Medical History-Pregnancy"],
-        delivery: formData["Medical History-Delivery"],
-        neonatal: formData["Medical History-Neonatal"],
-        developmentHx: formData["Medical History-Development History"],
-        dietHx: formData["Medical History-Diet History"],
-        medicalHx: formData["Medical History-Medical History"],
-        pacemaker: formData["Medical History-Pacemaker"],
-      }),
-      menstrualHxDTO: filterEmptyFields({
-        lmp: formData["Menstrual History-LMP (date)"],
-        regular: formData["Menstrual History-Regular"],
-        since: formData["Menstrual History-Since"],
-        every: formData["Menstrual History-Every"],
-        lasting: formData["Menstrual History-Lasting"],
-        pain: formData["Menstrual History-Pain"],
-        comments: formData["Menstrual History-Comments"],
-      }),
-      gynecPastIllnessDTO: filterEmptyFields({
-        operation: formData["Gynec - Past Illness-Operation"],
-        anesthesiaProblems: formData["Gynec - Past Illness-Anesthesia Problems"],
-        bloodProducts: formData["Gynec - Past Illness-Blood/Products"],
-        respiratoryIssues: formData["Gynec - Past Illness-Respiratory Issues"],
-        renalDisease: formData["Gynec - Past Illness-Renal Disease"],
-        diabetes: formData["Gynec - Past Illness-Diabetes"],
-        cardiacProblems: formData["Gynec - Past Illness-Cardiac Problems"],
-        gynecologicIssues: formData["Gynec - Past Illness-Gynecologic Issues"],
-        thromboembolism: formData["Gynec - Past Illness-Thromboembolism"],
-        hypertension: formData["Gynec - Past Illness-Hypertension"],
-        cnsDisorderMigraine: formData["Gynec - Past Illness-CNS Disorder/Migraine"],
-        psychiatricEatingDisorder: formData["Gynec - Past Illness-Psychiatric or Eating Disorder"],
-        substanceUse: formData["Gynec - Past Illness-Substance Use"],
-        sti: formData["Gynec - Past Illness-STI"],
-        edd: formData["Gynec - Past Illness-EDD"],
-        others: formData["Gynec - Past Illness-Others"],
-      }),
-      presentPregnancyDTO: filterEmptyFields({
-        currentMedications: formData["Present Pregnancy-Current Medications"],
-        prePregnancyMedication: formData["Present Pregnancy-Pre-pregnancy Medication"],
-        preConceptualFolicAcid: formData["Present Pregnancy-Pre-conceptual Folic Acid"],
-        depressionAnxiety: formData["Present Pregnancy-Depression/Anxiety"],
-        bleeding: formData["Present Pregnancy-Bleeding"],
-        receivedImmuneGlobulin: formData["Present Pregnancy-Received Immune Globulin"],
-        pyrexia: formData["Present Pregnancy-Pyrexia"],
-        infection: formData["Present Pregnancy-Infection (e.g., UTI, STI)"],
-        nauseaVomiting: formData["Present Pregnancy-Nausea/Vomiting"],
-        smokingPrePreg: formData["Present Pregnancy-Smoking Pre-preg (per day)"],
-        wishingToQuit: formData["Present Pregnancy-Wishing to Quit"],
-        alcoholUse: formData["Present Pregnancy-Alcohol Use"],
-        substanceUse: formData["Present Pregnancy-Substance Use"],
-        threatenedPretermLabour: formData["Present Pregnancy-Threatened Preterm Labour"],
-        ffnSent: formData["Present Pregnancy-fFN Sent"],
-        lmp: formData["Present Pregnancy-LMP"],
-        others: formData["Present Pregnancy-Others"],
-      }),
-      familyHxDTO: filterEmptyFields({
-        diabetes: formData["Family History-Diabetes"],
-        hypertension: formData["Family History-Hypertension"],
-        thrombosis: formData["Family History-Thrombosis"],
-        cancer: formData["Family History-Cancer"],
-        others: formData["Family History-Others"],
-      }),
-      birthHxDTO: filterEmptyFields({
-        birthHistory: formData["Birth History-Birth History"],
-      }),
-      pastObstetricalHistoryDTO: filterEmptyFields({
-        g: formData["Past Obstetrical History-G"],
-        p: formData["Past Obstetrical History-P"],
-        nvd: formData["Past Obstetrical History-NVD"],
-        lscs: formData["Past Obstetrical History-LSCS"],
-        mode: formData["Past Obstetrical History-Mode"],
-        babyWeight: formData["Past Obstetrical History-Baby's Weight"],
-        babySex: formData["Past Obstetrical History-Baby's Sex"],
-        remarks: formData["Past Obstetrical History-Remarks"],
-        miscarriage: formData["Past Obstetrical History-Miscarriage"],
-      }),
-      sensitivityAllergyDTO: filterEmptyFields({
-        drugAllergy: formData["Sensitivity / Allergy-Drug Allergy"],
-        sensitivityAllergy: formData["Sensitivity / Allergy-Sensitivity/Allergy"],
-      }),
-      medicationHxDTO: filterEmptyFields({
-        currentMedication: formData["Medication History-Current Medications"],
-        medicationHx: formData["Medication History-Medication History"],
-      }),
-      otherHxDTO: filterEmptyFields({
-        smearHistory: formData["Other History-Smear History"],
-        sonomammogramHistory: formData["Other History-Sonomammogram History"],
-        contraception: formData["Other History-Contraception"],
-        bowelHistory: formData["Other History-Bowel History"],
-        urinaryHistory: formData["Other History-Urinary History"],
-        otherHistory: formData["Other History-Other History"],
-      }),
-    };
-  
-    dispatch(fetchAddMedHistory(payload))
-      .then(() => {
-        dispatch(fetchMedicalHistory());
-      })
-      .finally(() => {
-        setFormData({});
-        setAddHistoryMdl(false);
-      });
-  };
-  
-
   return (
     <div>
-      <div className="header-container my-4">
-        <h6>Medical History</h6>
-        {addHistoryMdl ? (
-          <div className="custom-btn" onClick={() => setAddHistoryMdl(false)}>
-            Hide
-          </div>
-        ) : (
-          <div className="custom-btn" onClick={() => setAddHistoryMdl(true)}>
+      <div className="header-container ">
+        <div className="h6 ">Medical History</div>
+        {!showForm ? (
+          <div className="custom-btn" onClick={() => setShowForm(true)}>
             Add Medical History
           </div>
+        ) : (
+          <>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleSubmit}
+              sx={{ mt: 3 }}
+            >
+              Save History
+            </Button>
+          </>
         )}
       </div>
+      {showForm &&
+        sections.map(({ title, key, fields }) =>
+          renderSection(title, key, fields)
+        )}
+      {!showForm && data && (
+        <Box sx={{ mt: 2 }}>
+          {sections.map(({ title, key }) => {
+            const sectionData = data[key];
 
-      {addHistoryMdl ? (
-        <Box my={2}>
-          {historyData.map((item) => (
-            <Box
-              key={item.id}
+            if (!Array.isArray(sectionData) || sectionData.length === 0)
+              return null;
+
+            const validEntries = sectionData
+              .map((entry) =>
+                Object.entries(entry || {}).filter(
+                  ([fieldKey, fieldVal]) =>
+                    fieldKey !== "id" &&
+                    fieldVal &&
+                    typeof fieldVal === "string" &&
+                    fieldVal.trim() !== "" &&
+                    fieldVal.toLowerCase() !== "string"
+                )
+              )
+              .filter((fields) => fields.length > 0);
+
+            if (validEntries.length === 0) return null;
+
+            return (
+              <Card
+                key={key}
+                variant="outlined"
+                sx={{
+                  mb: 3,
+                  borderRadius: 2,
+                  boxShadow: 2,
+                  bgcolor: "#fafafa",
+                  borderColor: "#e0e0e0",
+                }}
+              >
+                <CardContent>
+                  <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+                    {title}
+                  </Typography>
+
+                  {validEntries.map((fields, idx) => (
+                    <Grid
+                      container
+                      spacing={2}
+                      sx={{
+                        mb: 2,
+                        p: 1.5,
+                        bgcolor: "#fff",
+                        borderRadius: 1,
+                        boxShadow: 0.5,
+                        border: "1px solid #f0f0f0",
+                      }}
+                      key={idx}
+                    >
+                      {fields.map(([fieldKey, fieldVal]) => (
+                        <Grid item xs={12} sm={6} md={4} key={fieldKey}>
+                          <Typography
+                            variant="subtitle2"
+                            sx={{ color: "text.secondary" }}
+                          >
+                            {formatLabel(fieldKey)}
+                          </Typography>
+                          <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                            {String(fieldVal)}
+                          </Typography>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  ))}
+                </CardContent>
+              </Card>
+            );
+          })}
+
+          {/* If no valid sections found */}
+          {sections.every(({ key }) => {
+            const sectionData = data[key];
+            const validEntries = (sectionData || [])
+              .map((entry) =>
+                Object.entries(entry || {}).filter(
+                  ([k, v]) =>
+                    k !== "id" &&
+                    v &&
+                    typeof v === "string" &&
+                    v.trim() !== "" &&
+                    v.toLowerCase() !== "string"
+                )
+              )
+              .filter((fields) => fields.length > 0);
+            return validEntries.length === 0;
+          }) && (
+            <Card
+              variant="outlined"
               sx={{
-                borderBottom: "1px solid #ddd",
-                marginBottom: 1,
+                borderRadius: 2,
+                textAlign: "center",
+                p: 4,
+                color: "text.secondary",
+                bgcolor: "#fdfdfd",
+                borderStyle: "dashed",
               }}
             >
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: 1,
-                  cursor: "pointer",
-                  backgroundColor:
-                    expanded === item.id ? "#f0f0f0" : "transparent",
-                }}
-                onClick={() => handleAccordionToggle(item.id)}
-              >
-                <Typography
-                  sx={{
-                    color: "black",
-                    fontWeight: "medium",
-                    bgcolor: "lightBlue",
-                    padding: "5px 10px",
-                    borderRadius: "4px",
-                    fontSize: "14px",
-                  }}
-                >
-                  {item.title}
-                </Typography>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      color="primary"
-                      checked={!!nilSignificant[item.id]}
-                      onClick={(e) => e.stopPropagation()}
-                      onChange={() => handleCheckboxChange(item.id)}
-                    />
-                  }
-                  label="Nil Significant"
-                />
-              </Box>
-              {expanded === item.id && (
-                <Box sx={{ padding: 2, backgroundColor: "#f9f9f9" }}>
-                  <Grid container spacing={2}>
-                    {item.fields.map((field, index) =>
-                      InputField(field, `${item.title}-${field}`)
-                    )}
-                  </Grid>
-                </Box>
-              )}
-            </Box>
-          ))}
-          <Box display={"flex"} justifyContent={"end"} my={3}>
-            <Button variant="contained" color="primary" onClick={handleSubmit}>
-              Save/Close
-            </Button>
-          </Box>
-        </Box>
-      ) : (
-        <div>
-          {!submittedData || submittedData.length === 0 ? (
-            <div
-              className="text-center"
-              style={{ borderBottom: "1px solid gray" }}
-            >
-              No Medical History found
-            </div>
-          ) : (
-            <div className="p-2 ">
-              {submittedData.map((data, index) => (
-                <Box key={index} my={2}>
-                  <div
-                    className="mb-3 h6"
-                    style={{
-                      color: "rgb(144, 189, 204)",
-                      // fontWeight: "medium",
-                      // backgroundColor: "lightBlue",
-                      padding: "5px 10px",
-                      borderRadius: "4px",
-                      // width: "fit-content",
-                      borderBottom: "2px solid lightGray",
-                    }}
-                  >
-                    {data.title}
-                  </div>
-                  {data.fields.map((field, idx) => (
-                    <div className="d-flex  w-100" key={idx}>
-                      <div className="h6  w-25 mx-2 "> {field.label} </div>
-                      <div
-                        className=" w-75 ps-2"
-                        style={{
-                          // backgroundColor: "#e4e4e4",
-                          // borderRadius: "4px",
-                          borderLeft: "2px solid gray",
-                        }}
-                      >
-                        {field.value}
-                      </div>
-                    </div>
-                  ))}
-                </Box>
-              ))}
-            </div>
+              <Typography variant="h6">
+                No Medical History Data Available
+              </Typography>
+            </Card>
           )}
-        </div>
+
+          {/* Footer */}
+          {data?.createdAt && (
+            <Typography
+              variant="subtitle2"
+              sx={{ mt: 2, textAlign: "right", color: "text.secondary" }}
+            >
+              Entered Date: {data.createdAt} | Entered By:{" "}
+              {data.createdBy || "N/A"}
+            </Typography>
+          )}
+        </Box>
       )}
     </div>
   );

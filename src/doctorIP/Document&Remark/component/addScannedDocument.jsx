@@ -1,5 +1,4 @@
-import React from "react";
-import { Formik, Form, Field } from "formik";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,93 +7,114 @@ import {
   TextField,
   MenuItem,
 } from "@mui/material";
+import { useDispatch } from "react-redux";
+import { createDocument } from "../../../Redux/slice/DoctSlice/POST/documentSlice";
 
 const AddScannedDocument = ({
   handleAddScannedDocModalClose,
   uploadDocuments,
+  getFile,
+  patientId,
 }) => {
-  const initialValues = {
-    docuement: "",
+  const dispatch = useDispatch();
+  const [formData, setFormData] = useState({
+    documentType: "",
     file: null,
+  });
+
+  const [errors, setErrors] = useState({});
+
+  const handleInputChange = (name, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const handleSubmit = (values) => {
-    let errors = {};
-
-    if (!values.docuement) {
-      errors.docuement = "Please select a document type";
+  const handleFileChange = (event) => {
+    const file = event.target.files[0]; 
+    if (file) {
+      const formattedFile = `${file.name}`; 
+      handleInputChange("file", formattedFile);
     }
-    if (!values.file) {
-      errors.file = "Please upload a file";
+  };
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.documentType) {
+      newErrors.documentType = "Please select a document type";
     }
-
-    if (Object.keys(errors).length > 0) {
-      alert("Please fill out all required fields");
-      return;
+    if (!formData.file) {
+      newErrors.file = "Please upload a file";
     }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
-    uploadDocuments(values);
-    handleAddScannedDocModalClose(); // Close the modal after successful upload
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    if (validateForm()) {
+      dispatch(createDocument({ ...formData, patientId })).then(() => {
+        getFile();
+        uploadDocuments(formData);
+        handleAddScannedDocModalClose();
+      });
+    }
   };
 
   return (
-    <Formik initialValues={initialValues} onSubmit={handleSubmit}>
-      {({ setFieldValue, values, errors, touched }) => (
-        <Dialog
-          open={true}
-          onClose={handleAddScannedDocModalClose}
-          fullWidth
-          maxWidth="sm"
-        >
-          <Form>
-            <DialogContent>
-              <h6>Attachment</h6>
-              <div className="d-flex gap-4 flex-wrap">
-                {/* Document Type Field */}
-                <Field
-                  as={TextField}
-                  select
-                  fullWidth
-                  label="Document Type"
-                  name="docuement"
-                  variant="standard"
-                  helperText={errors.docuement && touched.docuement && errors.docuement}
-                  error={errors.docuement && touched.docuement}
-                >
-                  <MenuItem value="">Select a document</MenuItem>
-                  <MenuItem value="Lab">Lab</MenuItem>
-                  <MenuItem value="Pre Approval">Pre Approval</MenuItem>
-                </Field>
+    <Dialog
+      open={true}
+      onClose={handleAddScannedDocModalClose}
+      fullWidth
+      maxWidth="sm"
+    >
+      <form onSubmit={handleSubmit}>
+        <DialogContent>
+          <h6>Attachment</h6>
+          <div className="d-flex gap-4 flex-wrap">
+            {/* Document Type Field */}
+            <TextField
+              select
+              fullWidth
+              label="Document Type"
+              name="documentType"
+              value={formData.documentType}
+              onChange={(e) =>
+                handleInputChange("documentType", e.target.value)
+              }
+              variant="standard"
+              helperText={errors.documentType}
+              error={!!errors.documentType}
+            >
+              <MenuItem value="">Select a document</MenuItem>
+              <MenuItem value="Lab">Lab</MenuItem>
+              <MenuItem value="Pre Approval">Pre Approval</MenuItem>
+            </TextField>
 
-                {/* Conditional File Upload Field */}
-                {values.docuement && (
-                  <TextField
-                    type="file"
-                    fullWidth
-                    inputProps={{ multiple: true }}
-                    onChange={(event) => {
-                      const file = event.currentTarget.files;
-                      setFieldValue("file", file);
-                    }}
-                    helperText={errors.file && touched.file && errors.file}
-                    error={errors.file && touched.file}
-                    variant="standard"
-                  />
-                )}
-              </div>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleAddScannedDocModalClose} color="secondary">
-                Close
-              </Button>
-              <Button type="submit" color="primary">
-                Upload
-              </Button>
-            </DialogActions>
-          </Form>
-        </Dialog>
-      )}
-    </Formik>
+            {/* Conditional File Upload Field */}
+            {formData.documentType && (
+              <TextField
+                type="file"
+                fullWidth
+                inputProps={{ multiple: true }}
+                onChange={handleFileChange}
+                helperText={errors.file}
+                error={!!errors.file}
+                variant="standard"
+              />
+            )}
+          </div>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleAddScannedDocModalClose} color="secondary">
+            Close
+          </Button>
+          <Button type="submit" color="primary">
+            Upload
+          </Button>
+        </DialogActions>
+      </form>
+    </Dialog>
   );
 };
 

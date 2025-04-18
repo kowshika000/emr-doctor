@@ -1,10 +1,10 @@
 import React from "react";
 import Examination from "./examination/examination";
 
-const ExaminationIp = () => {
+const ExaminationIp = ({ patientId }) => {
   return (
     <div className="full-screen-scrollable">
-      <Examination />
+      <Examination patientId={patientId} />
     </div>
   );
 };

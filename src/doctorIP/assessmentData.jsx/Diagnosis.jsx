@@ -1,22 +1,16 @@
 import React from "react";
 import DisplayDiagnosis from "./components/diagnosis/displayDiagnosis";
-import DisplayManagementPlan from "./components/managementPlan/displayManagementPlan";
 import DisplayMedication from "./components/medication/displayMedication";
 import DisplayProvisionalDiagnosis from "./components/provisionalDiagnosis/displayProvisionalDiagnosis";
+import MangementPlan from "./components/managementPlan/managementPlan";
 
-const DiagnosisIp = ({ appointmentId, patientId }) => {
+const DiagnosisIp = ({ patientId }) => {
   return (
     <div className="full-screen-scrollable">
-      <DisplayDiagnosis appointmentId={appointmentId} patientId={patientId} />
-      <DisplayManagementPlan
-        appointmentId={appointmentId}
-        patientId={patientId}
-      />
-      <DisplayMedication appointmentId={appointmentId} patientId={patientId} />
-      <DisplayProvisionalDiagnosis
-        appointmentId={appointmentId}
-        patientId={patientId}
-      />
+      <DisplayDiagnosis patientId={patientId} />
+      <MangementPlan patientId={patientId} />
+      <DisplayMedication patientId={patientId} />
+      <DisplayProvisionalDiagnosis patientId={patientId} />
     </div>
   );
 };

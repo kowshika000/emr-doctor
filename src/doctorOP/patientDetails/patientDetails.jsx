@@ -35,7 +35,7 @@ const PatientDetails = () => {
           appointmentId={appointmentId}
           patientData={patientData}
         />
-        <OpTab patientId={patientId} appointmentId={appointmentId} />
+        <OpTab patientId={patientId} />
       </div>
     </div>
   );

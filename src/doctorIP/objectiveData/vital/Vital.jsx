@@ -4,14 +4,14 @@ import { Table, Button } from "antd";
 import { fetchVital } from "../../../Redux/slice/DoctSlice/GET/vitalSlice";
 import { AddVital } from "./AddVital"; // Assuming AddVital is your custom component for adding vitals
 
-export const Vital = ({ appointmentId, patientId }) => {
+export const Vital = ({  patientId }) => {
   const dispatch = useDispatch();
   const [addVital, setAddVital] = useState(false);
 
   const data = useSelector((state) => state?.docEmr?.showVital.vitaldata);
 
   const getVital = () => {
-    dispatch(fetchVital({ appointmentId }));
+    dispatch(fetchVital({ patientId }));
   };
 
   useEffect(() => {
@@ -50,7 +50,7 @@ export const Vital = ({ appointmentId, patientId }) => {
       key: "o2Saturation",
     },
     {
-      title: "Entered Data",
+      title: "Entered Date",
       dataIndex: "createdOn",
       key: "createdOn",
       render: (text) => (text ? text : "--"),
@@ -82,7 +82,7 @@ export const Vital = ({ appointmentId, patientId }) => {
       {addVital && (
         <AddVital
           handleCloseAddVital={() => setAddVital(false)}
-          appointmentId={appointmentId}
+          patientId={patientId}
           getVital={getVital}
         />
       )}

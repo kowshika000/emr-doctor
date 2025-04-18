@@ -1,13 +1,18 @@
 import React, { useState } from "react";
-import { Dialog, DialogContent, TextField } from "@mui/material";
+import {
+  Autocomplete,
+  Dialog,
+  DialogContent,
+  FormControl,
+  TextField,
+} from "@mui/material";
 import FormButton from "../../../../component/FormButton";
 import { createProvisionalDiagnosis } from "../../../../Redux/slice/DoctSlice/POST/provisionalSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchSearchDiagnosis } from "../../../../Redux/slice/IpSlice/GET/searchDiagnosis";
 
 function AddProvisionalDiagnosis({
   handleAddProvisionalDiagnosisModalClose,
-  ProvisionalDiagnosis,
-  currentPlanCount,
   getProvisionalDiagnosis,
   patientId,
 }) {
@@ -15,15 +20,30 @@ function AddProvisionalDiagnosis({
 
   const [provisionalDiagnosis, setProvisionalDiagnosis] = useState("");
 
+  const { data } = useSelector((state) => state?.docEmr?.searchDiagnosis);
+
+  const diagnosisOptions =
+    data?.map((item) => ({
+      label: item.diagnosisName,
+      value: item.id,
+    })) || [];
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!provisionalDiagnosis.trim()) {
+    const diagnosisId = provisionalDiagnosis?.value;
+
+    if (!diagnosisId) {
       alert("Please enter a provisional diagnosis.");
       return;
     }
 
-    dispatch(createProvisionalDiagnosis({ patientId, provisionalDiagnosis }))
+    dispatch(
+      createProvisionalDiagnosis({
+        patientId,
+        diagnosisId,
+      })
+    )
       .then(() => {
         getProvisionalDiagnosis();
         setProvisionalDiagnosis("");
@@ -47,17 +67,36 @@ function AddProvisionalDiagnosis({
           <h6>Add Provisional Diagnosis</h6>
 
           <div className="form-group mt-3">
-            <TextField
-              label="Provisional Diagnosis"
-              id="provisionalDiagnosis"
-              name="provisionalDiagnosis"
-              type="text"
-              fullWidth
-              value={provisionalDiagnosis}
-              onChange={(e) => setProvisionalDiagnosis(e.target.value)}
-              size="small"
-              sx={{ marginBottom: "10px" }}
-            />
+            <FormControl fullWidth size="small">
+              <Autocomplete
+                freeSolo
+                options={diagnosisOptions}
+                value={provisionalDiagnosis}
+                onChange={(event, newValue) => {
+                  setProvisionalDiagnosis(newValue);
+                }}
+                onInputChange={(event, value, reason) => {
+                  if (reason === "input") {
+                    dispatch(fetchSearchDiagnosis({ name: value }));
+                  }
+                }}
+                getOptionLabel={(option) =>
+                  typeof option === "string" ? option : option?.label || ""
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Provisional Diagnosis"
+                    variant="outlined"
+                    size="small"
+                    InputProps={{
+                      ...params.InputProps,
+                      autoComplete: "off",
+                    }}
+                  />
+                )}
+              />
+            </FormControl>
           </div>
 
           <div className="form-button">

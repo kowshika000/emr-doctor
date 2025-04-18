@@ -4,14 +4,14 @@ import { Table, Button } from "antd";
 import { fetchFluid } from "../../../Redux/slice/DoctSlice/GET/fluidSlice";
 import { AddFluid } from "./addFluid";
 
-const Fluid = ({ appointmentId, patientId }) => {
+const Fluid = ({ patientId }) => {
   const dispatch = useDispatch();
   const [addFluid, setAddFluid] = useState(false);
 
   const data = useSelector((state) => state.docEmr?.showFluid?.fluiddata);
 
   const getFluid = () => {
-    dispatch(fetchFluid({ appointmentId }));
+    dispatch(fetchFluid({ patientId }));
   };
 
   useEffect(() => {
@@ -89,6 +89,21 @@ const Fluid = ({ appointmentId, patientId }) => {
         },
       ],
     },
+    {
+      title: "",
+      children: [
+        {
+          title: "Entered Date",
+          dataIndex: "createdAt",
+          key: "createdAt",
+        },
+        {
+          title: "Entered By",
+          dataIndex: "updatedBy",
+          key: "updatedBy",
+        },
+      ],
+    },
   ];
 
   return (
@@ -111,7 +126,7 @@ const Fluid = ({ appointmentId, patientId }) => {
       {addFluid && (
         <AddFluid
           handleCloseAddFluid={() => setAddFluid(false)}
-          appointmentId={appointmentId}
+          patientId={patientId}
           getFluid={getFluid}
         />
       )}

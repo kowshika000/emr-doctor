@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import AxiosInstance from "../../../api/AxiosInstance";
 import { API_ENDPOINTS } from "../../../api/apiEndPointend";
 
-export const fetchAddMedHistory = createAsyncThunk(
+export const createMedicalHistory = createAsyncThunk(
   "emr/addMedHistory",
   async (credentials, { rejectWithValue }) => {
     try {
@@ -27,15 +27,15 @@ const addMedHistorySlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchAddMedHistory.pending, (state) => {
+      .addCase(createMedicalHistory.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchAddMedHistory.fulfilled, (state, action) => {
+      .addCase(createMedicalHistory.fulfilled, (state, action) => {
         state.loading = false;
         state.data = action.payload.data;
       })
-      .addCase(fetchAddMedHistory.rejected, (state, action) => {
+      .addCase(createMedicalHistory.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

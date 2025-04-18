@@ -21,10 +21,12 @@ export const API_ENDPOINTS = {
   GET_CLINICAL_EXAM: "doctorEmr/getClinicalExamination",
   ADD_CLINICAL_EXAM: "doctorEmr/createClinicalExamination",
   EDIT_CLINICAL_EXAM: "doctorEmr/editClinicalExamination",
+  DELETE_CLINICAL_EXAM: "doctorEmr/deleteClinicalExamination",
 
   GET_CONFIDENTIAL_STATEMENT: "doctorEmr/getConfidentialStatement",
   ADD_CONFIDENTIAL_STATEMENT: "doctorEmr/createConfidentialStatement",
   EDIT_CONFIDENTIAL_STATEMENT: "doctorEmr/editConfidentialStatement",
+  DELETE_CONFIDENTIAL_STATEMENT: "doctorEmr/deleteConfidentialStatement",
 
   GET_NURSE_NOTE: "doctorEmr/getNurseNotes",
   ADD_NURSE_NOTE: "doctorEmr/createNurseNotes",
@@ -46,18 +48,18 @@ export const API_ENDPOINTS = {
 
   GET_MEDICATION: "opPatient/getMedication",
   ADD_MEDICATION: "opPatient/createMedication",
+  SEARCH_MEDICATION: "opPatient/searchAllMedicine",
 
   GET_PROVISIONAL: "opPatient/getProvisionalDiagnosis",
   ADD_PROVISIONAL: "opPatient/createProvisionalDiagnosis",
+  DELETE_PROVISIONAL: "opPatient/deleteProvisionalDiagnosis",
 
   GET_INVESTIGATION: "opPatient/getInvestigation",
   ADD_INVESTIGATION: "opPatient/createInvestigation",
-  // EDIT_INVESTIGATION: "opPatient/updateInvestigation",
   DELETE_INVESTIGATION: "opPatient/deleteInvestigation",
 
   GET_OP_TREATMENT: "treatmentApi/getTreatment",
   ADD_OP_TREATMENT: "treatmentApi/createTreatment",
-  // EDIT_OP_TREATMENT: "treatmentApi/updateTreatment",
   DELETE_OP_TREATMENT: "treatmentApi/deleteTreatment",
   SEARCH_OP_TREATMENT: "treatmentApi/searchLasTest",
 
@@ -78,14 +80,15 @@ export const API_ENDPOINTS = {
   DELETE_PROGRESS_NOTE: "patientApi/softDeleteProgressNote",
   EDIT_PROGRESS_NOTE: "patientApi/updateProgressNote",
 
-  GET_DISCHARGE_NOTE: "patientApi/getConsultationNotes",
-  ADD_DISCHARGE_NOTE: "patientApi/createConsultationNotes",
-  DELETE_DISCHARGE_NOTE: "patientApi/softDeleteConsultationNote",
-  EDIT_DISCHARGE_NOTE: "patientApi/updateConsultationNote",
+  GET_DISCHARGE_NOTE: "patientApi/getDischargeNotes",
+  ADD_DISCHARGE_NOTE: "patientApi/createDischargeNotes",
+  DELETE_DISCHARGE_NOTE: "patientApi/softDeleteDischargeNotes",
+  EDIT_DISCHARGE_NOTE: "patientApi/updateDischargeNotes",
 
   GET_SURGERY_DIAGNOSIS: "patientApi/getSurgeryDiagnosis",
   ADD_SURGERY_DIAGNOSIS: "patientApi/createSurgeryDiagnosis",
   DELETE_SURGERY_DIAGNOSIS: "patientApi/deleteSurgeryDiagnosisById",
+
   SEARCH_DIAGNOSIS: "patientApi/searchDiagnosis",
   // EDIT_SURGERY_DIAGNOSIS: "patientApi/updateConsultationNote",
 
@@ -116,4 +119,23 @@ export const API_ENDPOINTS = {
   ADD_PACU_OPR_NOTE: "patientApi/createPacuOpNotes",
   DELETE_PACU_OPR_NOTE: "patientApi/softDeletePacuOpNote",
   EDIT_PACU_OPR_NOTE: "patientApi/updatePacuOpNote",
+
+  GET_TREATMENT_PLAN_NOTE: "patientApi/getTreatmentPlanNotes",
+  ADD_TREATMENT_PLAN_NOTE: "patientApi/createTreatmentPlanNotes",
+  DELETE_TREATMENT_PLAN_NOTE: "patientApi/softDeleteTreatmentPlanNotes",
+  EDIT_TREATMENT_PLAN_NOTE: "patientApi/updateTreatmentPlanNotes",
+
+  GET_FOLLOWUP_PLAN: "patientApi/getFollowUpPlan",
+  ADD_FOLLOWUP_PLAN: "patientApi/createFollowUpPlan",
+
+  GET_LIFE_SUPPORT: "patientApi/getLifeSupport",
+  ADD_LIFE_SUPPORT: "patientApi/createLifeSupport",
+
+  GET_DELIVERY_DETAILS: "patientApi/getDeliveryDetails",
+  ADD_DELIVERY_DETAILS: "patientApi/createDeliveryDetails",
+
+  BED_OCCUPANCY: "bed/getAllBedOccupancy",
+  All_DOCTORS: "doctor/getAllDoctors",
+
+  ADD_SURGERY_DETAILS: "patientApi/createSurgeryBooking",
 };

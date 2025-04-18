@@ -1,36 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
   DialogActions,
-  List,
-  ListItem,
-  ListItemText,
   Typography,
   Button,
-  Box,
+  FormControl,
+  TextField,
 } from "@mui/material";
+import Autocomplete from "@mui/material/Autocomplete";
 import FormInput from "../../../../component/FormInput";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { createMedication } from "../../../../Redux/slice/OpSlice/POST/medicationSlice";
-
-const dummyMedicines = [
-  { tradeName: "Dol65", ingredientName: "Paracetamol", dosage: "mg" },
-  { tradeName: "Ciplox", ingredientName: "Ciprofloxacin", dosage: "mg" },
-  { tradeName: "Dolo650", ingredientName: "Paracetamol", dosage: "mg" },
-];
+import { searchMedicine } from "../../../../Redux/slice/OpSlice/GET/searchMedicine";
 
 function AddMedication({
   handleprescribeMedicationModalClose,
-  prescribedMedicines,
   patientId,
   getMedication,
 }) {
   const dispatch = useDispatch();
-  const [searchQuery, setSearchQuery] = useState("");
+
+  const [selectedMedicine, setSelectedMedicine] = useState(null);
   const [formValues, setFormValues] = useState({
-    // tradeName: "",
-    // ingredientName: "",
     dosage: "",
     drugType: "",
     frequency: "",
@@ -40,16 +32,14 @@ function AddMedication({
     instructions: "",
   });
 
-  const handleSelectMedicine = (medicine) => {
-    const updated = {
-      ...formValues,
-      // tradeName: medicine.tradeName,
-      // ingredientName: medicine.ingredientName,
-      dosage: medicine.dosage,
-    };
-    updated.instructions = generateInstructions(updated);
-    setFormValues(updated);
-  };
+  const { data } = useSelector((state) => state?.docEmr?.searchMedicine);
+  console.log("Medicine data:", data);
+
+  const medicineOptions =
+    data?.map((item) => ({
+      label: item.tradeName,
+      value: item.id,
+    })) || [];
 
   const handleChange = (field) => (value) => {
     const updated = {
@@ -63,12 +53,18 @@ function AddMedication({
   };
 
   const generateInstructions = (values) =>
-    ` ${values.dosage || ""} ${values.frequency || ""} ${
+    `${values.dosage || ""} ${values.frequency || ""} ${
       values.drugType || ""
     }`.trim();
 
   const handleSubmit = () => {
-    dispatch(createMedication({ ...formValues, patientId }))
+    dispatch(
+      createMedication({
+        ...formValues,
+        patientId,
+        medicineId: selectedMedicine?.value || null,
+      })
+    )
       .then(() => {
         getMedication();
         handleprescribeMedicationModalClose();
@@ -78,12 +74,6 @@ function AddMedication({
       });
   };
 
-  const filteredMedicines = dummyMedicines.filter(
-    (medicine) =>
-      medicine.tradeName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      medicine.ingredientName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   return (
     <Dialog
       open={true}
@@ -92,116 +82,103 @@ function AddMedication({
       fullWidth
     >
       <DialogContent>
-        <Typography variant="h6" gutterBottom>
-          Prescribe Medication
-        </Typography>
+        <h6 className="mb-3">Prescribe Medication</h6>
+        <FormControl fullWidth size="small">
+          <Autocomplete
+            freeSolo
+            options={medicineOptions}
+            value={selectedMedicine}
+            onChange={(event, newValue) => setSelectedMedicine(newValue)}
+            onInputChange={(event, value, reason) => {
+              if (reason === "input") {
+                dispatch(searchMedicine({ name: value }));
+              }
+            }}
+            getOptionLabel={(option) =>
+              typeof option === "string" ? option : option?.label || ""
+            }
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Diagnosis"
+                variant="outlined"
+                size="small"
+                InputProps={{
+                  ...params.InputProps,
+                  autoComplete: "off",
+                }}
+              />
+            )}
+          />
+        </FormControl>
 
-        <Box display="flex" flexDirection="column" gap={2}>
+        <div className="form-container-1 mt-3">
           <FormInput
-            label="Search Medicine"
-            value={searchQuery}
-            onChange={setSearchQuery}
-            placeholder="Type to search..."
+            label="Drug Type"
+            value={formValues.drugType}
+            onChange={handleChange("drugType")}
           />
 
-          <Box
-            sx={{
-              height: 150,
-              overflowY: "auto",
-              border: "1px solid #ddd",
-              borderRadius: 1,
-              px: 1,
-            }}
-          >
-            <List>
-              {filteredMedicines.length > 0 ? (
-                filteredMedicines.map((medicine, index) => (
-                  <ListItem
-                    key={index}
-                    button
-                    onClick={() => handleSelectMedicine(medicine)}
-                  >
-                    <ListItemText
-                      primary={medicine.tradeName}
-                      secondary={`${medicine.ingredientName} | ${medicine.dosage}`}
-                    />
-                  </ListItem>
-                ))
-              ) : (
-                <ListItem>
-                  <ListItemText primary="No medicines found" />
-                </ListItem>
-              )}
-            </List>
-          </Box>
-          <div className="form-container-1">
-            <FormInput
-              label="Drug Type"
-              value={formValues.drugType}
-              onChange={handleChange("drugType")}
-            />
+          <FormInput
+            label="Order Type"
+            type="select"
+            value={formValues.orderType}
+            onChange={handleChange("orderType")}
+            options={[
+              { label: "Regular" },
+              { label: "Weekly" },
+              { label: "Monthly" },
+            ]}
+          />
 
-            <FormInput
-              label="Order Type"
-              type="select"
-              value={formValues.orderType}
-              onChange={handleChange("orderType")}
-              options={[
-                { label: "Regular" },
-                { label: "Weekly" },
-                { label: "Monthly" },
-              ]}
-            />
+          <FormInput
+            label="Route of Admin"
+            value={formValues.roa}
+            onChange={handleChange("roa")}
+          />
 
-            <FormInput
-              label="Route of Admin"
-              value={formValues.roa}
-              onChange={handleChange("roa")}
-            />
+          <FormInput
+            label="Dosage"
+            type="select"
+            value={formValues.dosage}
+            onChange={handleChange("dosage")}
+            options={[
+              { label: "ml" },
+              { label: "Mcg" },
+              { label: "Tablet" },
+              { label: "Patch" },
+              { label: "Vial" },
+              { label: "Drops" },
+              { label: "Grams" },
+              { label: "mg" },
+            ]}
+          />
 
-            <FormInput
-              label="Dosage"
-              type="select"
-              value={formValues.dosage}
-              onChange={handleChange("dosage")}
-              options={[
-                { label: "ml" },
-                { label: "Mcg" },
-                { label: "Tablet" },
-                { label: "Patch" },
-                { label: "Vial" },
-                { label: "Drops" },
-                { label: "Grams" },
-                { label: "mg" },
-              ]}
-            />
+          <FormInput
+            label="Frequency"
+            type="select"
+            value={formValues.frequency}
+            onChange={handleChange("frequency")}
+            options={[
+              { label: "1-0-0" },
+              { label: "0-1-0" },
+              { label: "0-0-1" },
+              { label: "1-0-1" },
+              { label: "1-1-1" },
+            ]}
+          />
 
-            <FormInput
-              label="Frequency"
-              type="select"
-              value={formValues.frequency}
-              onChange={handleChange("frequency")}
-              options={[
-                { label: "1-0-0" },
-                { label: "0-1-0" },
-                { label: "0-0-1" },
-                { label: "1-0-1" },
-                { label: "1-1-1" },
-              ]}
-            />
-
-            <FormInput
-              label="Duration (days)"
-              value={formValues.duration}
-              onChange={handleChange("duration")}
-            />
-          </div>
+          <FormInput
+            label="Duration (days)"
+            value={formValues.duration}
+            onChange={handleChange("duration")}
+          />
           <FormInput
             label="Instructions"
             value={formValues.instructions}
             readOnly
           />
-        </Box>
+        </div>
       </DialogContent>
 
       <DialogActions>

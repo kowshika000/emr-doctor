@@ -4,8 +4,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { createClinicalExamination } from "../../../../Redux/slice/DoctSlice/POST/clinicalExam";
 import { fetchClinicalExamination } from "../../../../Redux/slice/DoctSlice/GET/clinicalExamSlice";
 import { updateClinicalExamination } from "../../../../Redux/slice/DoctSlice/PUT/clinicalSlice";
+import { deleteClinical } from "../../../../Redux/slice/IpSlice/DELETE/clinical";
 
-function DisplayClinicalExamination({ appointmentId, patientId }) {
+function DisplayClinicalExamination({ patientId }) {
   const dispatch = useDispatch();
   const [notes, setNotes] = useState([]);
 
@@ -16,9 +17,9 @@ function DisplayClinicalExamination({ appointmentId, patientId }) {
     dispatch(
       createClinicalExamination({
         examinationAssessment: note,
-        appointmentId,
+        patientId,
       })
-    ).then(() => dispatch(fetchClinicalExamination({ appointmentId })));
+    ).then(() => dispatch(fetchClinicalExamination({ patientId })));
   };
 
   const handleEditNote = (updatedNotes) => {
@@ -26,30 +27,32 @@ function DisplayClinicalExamination({ appointmentId, patientId }) {
     dispatch(
       updateClinicalExamination({
         examinationAssessment: note,
-        appointmentId,
+        patientId,
       })
-    ).then(() => dispatch(fetchClinicalExamination({ appointmentId })));
+    ).then(() => dispatch(fetchClinicalExamination({ patientId })));
   };
 
   const handleDeleteNote = (deletedNote) => {
-    setNotes((prevNotes) =>
-      prevNotes.filter((note) => note.id !== deletedNote.id)
-    );
+    dispatch(deleteClinical({ id: deletedNote.id }))
+      .then(() => dispatch(fetchClinicalExamination({ patientId })))
+      .catch((error) => console.error("Error deleting note:", error));
   };
 
   useEffect(() => {
-    dispatch(fetchClinicalExamination({ appointmentId }));
+    dispatch(fetchClinicalExamination({ patientId }));
   }, [dispatch]);
 
   useEffect(() => {
-    if (data) {
+    if (Array.isArray(data)) {
       const formattedNotes = data.map((item, index) => ({
         id: index + 1,
-        notes: item.clinicalExamination || "No data",
-        enteredDate: new Date().toISOString().split("T")[0],
-        enteredBy: "Kowshika",
+        notes: item.examinationAssessment || "--",
+        enteredDate: item.createdAt || "--",
+        enteredBy: item.createdBy || "--",
       }));
       setNotes(formattedNotes);
+    } else {
+      setNotes([]);
     }
   }, [data]);
 

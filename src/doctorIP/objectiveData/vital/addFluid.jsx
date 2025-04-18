@@ -5,7 +5,7 @@ import FormButton from "../../../component/FormButton";
 import { useDispatch } from "react-redux";
 import { fetchAddFluid } from "../../../Redux/slice/DoctSlice/POST/addFluidSlice";
 
-export const AddFluid = ({ handleCloseAddFluid, appointmentId, getFluid }) => {
+export const AddFluid = ({ handleCloseAddFluid, patientId, getFluid }) => {
   const dispatch = useDispatch();
 
   const [fluidData, setFluidData] = useState({
@@ -31,7 +31,7 @@ export const AddFluid = ({ handleCloseAddFluid, appointmentId, getFluid }) => {
   };
 
   const handleSubmit = () => {
-    const payload = { ...fluidData, appointmentId };
+    const payload = { ...fluidData, patientId };
     dispatch(fetchAddFluid(payload))
       .then(() => getFluid())
       .finally(() => handleCloseAddFluid());
