@@ -8,7 +8,7 @@ import { fetchAddChiefComplaint } from "../../../Redux/slice/DoctSlice/POST/addC
 const AddChiefComplaint = ({
   handleClose,
   getChiefComplaint,
-  appointmentId,
+  patientId,
 }) => {
   const dispatch = useDispatch();
   const [inputValues, setInputValues] = useState({
@@ -33,7 +33,7 @@ const AddChiefComplaint = ({
   };
 
   const handleSubmit = () => {
-    dispatch(fetchAddChiefComplaint({ ...inputValues, appointmentId }))
+    dispatch(fetchAddChiefComplaint({ ...inputValues, patientId }))
       .then(() => getChiefComplaint())
       .finally(() => handleClose());
   };

@@ -4,10 +4,10 @@ import { API_ENDPOINTS } from "../../../api/apiEndPointend";
 
 export const fetchPainRate = createAsyncThunk(
   "emr_doctor/painrate",
-  async ({ appointmentId }, { rejectWithValue }) => {
+  async ({ patientId }, { rejectWithValue }) => {
     try {
       const response = await AxiosInstance.get(
-        `${API_ENDPOINTS.GET_PAINRATE}?appointmentId=${appointmentId}`
+        `${API_ENDPOINTS.GET_PAINRATE}?patientId=${patientId}`
       );
       return response?.data;
     } catch (error) {

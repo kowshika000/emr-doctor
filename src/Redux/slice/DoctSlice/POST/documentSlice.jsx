@@ -6,9 +6,14 @@ export const createDocument = createAsyncThunk(
   "emr/addDocument",
   async (credentials, { rejectWithValue }) => {
     try {
+      const formData = new FormData();
+
+      Object.keys(credentials).forEach((key) => {
+        formData.append(key, credentials[key]);
+      });
       const response = await AxiosInstance.post(
         API_ENDPOINTS.ADD_DOCUMENT,
-        credentials
+        formData
       );
       return response?.data;
     } catch (error) {

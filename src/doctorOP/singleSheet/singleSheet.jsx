@@ -3,7 +3,7 @@ import React from "react";
 import human from "../../assets/human.jpg";
 import FormInput from "../../component/FormInput";
 
-const SingleSheet = () => {
+const SingleSheet = ({patientId}) => {
   return (
     <div className="d-flex " style={{ justifyContent: "space-between" }}>
       <div className="sigleSheet-container-1">

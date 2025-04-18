@@ -14,7 +14,7 @@ import ReferralPage from "../referral/referralPage";
 
 const { TabPane } = Tabs;
 
-const OpTab = ({ patientId, appointmentId }) => {
+const OpTab = ({ patientId }) => {
   const handleTabChange = (key) => {
     // console.log("Selected Tab:", key);
   };
@@ -31,33 +31,27 @@ const OpTab = ({ patientId, appointmentId }) => {
       </TabPane>
       <TabPane tab="Nurse Sheet" key="2">
         <>
-          <MedicalHistory patientId={patientId} appointmentId={appointmentId} />
-          <NurseNotes patientId={patientId} appointmentId={appointmentId} />
-          <VitalSigns patientId={patientId} appointmentId={appointmentId} />
-          <HistoryOfPresentIllness
-            patientId={patientId}
-            appointmentId={appointmentId}
-          />
+          <MedicalHistory patientId={patientId} />
+          <NurseNotes patientId={patientId} />
+          <VitalSigns patientId={patientId} />
+          <HistoryOfPresentIllness patientId={patientId} />
         </>
       </TabPane>
       <TabPane tab="Referral" key="3">
-        <ReferralPage patientId={patientId} appointmentId={appointmentId} />
+        <ReferralPage patientId={patientId} />
       </TabPane>
       <TabPane tab="Examination" key="4">
-        <Examination patientId={patientId} appointmentId={appointmentId} />
+        <Examination patientId={patientId} />
       </TabPane>
       <TabPane tab="Diagnosis/Medication" key="5">
-        <DiagnosisIp patientId={patientId} appointmentId={appointmentId} />
+        <DiagnosisIp patientId={patientId} />
       </TabPane>
       <TabPane tab="Investigation/Treatment" key="6">
-        <Investigation patientId={patientId} appointmentId={appointmentId} />
-        <Treatments patientId={patientId} appointmentId={appointmentId}/>
+        <Investigation patientId={patientId} />
+        <Treatments patientId={patientId} />
       </TabPane>
       <TabPane tab="Document & Remarks" key="7">
-        <DocumentandRemarkIp
-          patientId={patientId}
-          appointmentId={appointmentId}
-        />
+        <DocumentandRemarkIp patientId={patientId} />
       </TabPane>
       <TabPane tab="Medical Form" key="8">
         <div>Content for Tab 5</div>

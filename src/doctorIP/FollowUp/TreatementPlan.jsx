@@ -1,28 +1,81 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Notes from "../components/Notes";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchTreatmentPlanNote } from "../../Redux/slice/IpSlice/GET/TreatmentPlanNote";
+import { createTreatmentPlanNote } from "../../Redux/slice/IpSlice/POST/TreatmentPlanNote";
+import { updateTreatmentPlanNoteNote } from "../../Redux/slice/IpSlice/PUT/TreatmentPlanNote";
+import { deleteTreatmentPlan } from "../../Redux/slice/IpSlice/DELETE/TreatmentPlanNote";
 
-const TreatementPlan = () => {
-  const [plan, setPlan] = useState([]);
+const TreatementPlan = ({ patientId }) => {
+  const dispatch = useDispatch();
+  const [notes, setNotes] = useState([]);
+  const { data } = useSelector((state) => state?.docEmr?.treatmentPlanNote);
 
-  // Add new note or update an existing note
-  const handleAddPlan = (updatedPlan) => {
-    setPlan(updatedPlan);
+  useEffect(() => {
+    if (patientId) {
+      dispatch(fetchTreatmentPlanNote({ patientId }));
+    }
+  }, [dispatch, patientId]);
+
+  useEffect(() => {
+    if (data) {
+      const formattedNotes = data?.map((item, index) => {
+        return {
+          id: item.EmrNotesId,
+          notes: item.notesDescription || "--",
+          enteredDate: item.createdAt || "--",
+          enteredBy: item.createdBy || "--",
+        };
+      });
+
+      setNotes(formattedNotes);
+    }
+  }, [data]);
+
+  const handleAddNote = (updatedNotes) => {
+    const note = updatedNotes[updatedNotes.length - 1]?.notes || "";
+    dispatch(createTreatmentPlanNote({ notesDescription: note, patientId }))
+      .then(() => dispatch(fetchTreatmentPlanNote({ patientId })))
+      .catch((error) => console.error("Error adding note:", error));
   };
 
-  // Handle note deletion
-  const handleDeletePlan = (deletedPlan) => {
-    setPlan((prevPlan) =>
-      prevPlan.filter((note) => note.id !== deletedPlan.id)
-    );
+  const handleEditNote = (editedNote) => {
+    console.log("Incoming editedNote:", editedNote);
+
+    if (!editedNote || !editedNote.id) {
+      console.error("Edit failed: No valid ID found.");
+      return;
+    }
+    const payload = {
+      id: editedNote.id,
+      newDescription: editedNote.notes,
+      patientId,
+    };
+    dispatch(updateTreatmentPlanNoteNote(payload))
+      .then(() => dispatch(fetchTreatmentPlanNote({ patientId })))
+      .catch((error) => console.error("Error updating note:", error));
   };
 
+  const handleDeleteNote = (deletedNote) => {
+    console.log("deletedNote", deletedNote);
+
+    if (!deletedNote || !deletedNote.id) {
+      console.error("Delete failed: No valid ID found.");
+      return;
+    }
+
+    dispatch(deleteTreatmentPlan({ id: deletedNote.id }))
+      .then(() => dispatch(fetchTreatmentPlanNote({ patientId })))
+      .catch((error) => console.error("Error deleting note:", error));
+  };
   return (
     <div>
       <Notes
         title={" Treatment Plan"}
-        rows={plan}
-        onAddNote={handleAddPlan}
-        onDeleteNote={handleDeletePlan}
+        rows={notes}
+        onAddNote={handleAddNote}
+        onDeleteNote={handleDeleteNote}
+        onEditNote={handleEditNote}
         addBtnName={"Add Treatment Plan"}
         label="Plan of care"
       />

@@ -4,14 +4,14 @@ import AddChiefComplaint from "./AddChiefComplaint";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchChiefComplaint } from "../../../Redux/slice/DoctSlice/GET/chiefComplaintSlice";
 
-const ChiefComplaint = ({ patientId, appointmentId }) => {
+const ChiefComplaint = ({ patientId }) => {
   const dispatch = useDispatch();
   const [addComplaint, setAddComplaint] = useState(false);
 
   const { data } = useSelector((state) => state.docEmr?.cheifComplaint);
 
   const getChiefComplaint = () => {
-    dispatch(fetchChiefComplaint({ appointmentId }));
+    dispatch(fetchChiefComplaint({ patientId }));
   };
 
   useEffect(() => {
@@ -95,7 +95,7 @@ const ChiefComplaint = ({ patientId, appointmentId }) => {
         <AddChiefComplaint
           handleClose={() => setAddComplaint(false)}
           getChiefComplaint={getChiefComplaint}
-          appointmentId={appointmentId}
+          patientId={patientId}
         />
       )}
     </div>

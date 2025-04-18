@@ -7,7 +7,7 @@ import { fetchProvisionalDiagnosis } from "../../../../Redux/slice/DoctSlice/GET
 import { DeleteOutlined } from "@ant-design/icons";
 import { Popconfirm, Table, Tooltip } from "antd";
 
-function DisplayProvisionalDiagnosis({ appointmentId, patientId }) {
+function DisplayProvisionalDiagnosis({ patientId }) {
   const dispatch = useDispatch();
 
   const [addProvisionalDiagnosisModal, setAddProvisionalDiagnosisModal] =
@@ -19,9 +19,6 @@ function DisplayProvisionalDiagnosis({ appointmentId, patientId }) {
   const [provisionalDiagnosisAdded, setprovisionalDiagnosisAdded] = useState(
     []
   );
-  const [updatedProvisionalDiagnosis, setupdatedProvisionalDiagnosis] =
-    useState([]);
-  const [currentRow, setCurrentRow] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
 
   const { data } = useSelector((state) => state.docEmr?.provisional);
@@ -52,17 +49,12 @@ function DisplayProvisionalDiagnosis({ appointmentId, patientId }) {
   const handleProvisionalDiagnosisHistoryModalClose = () => {
     setProvisionalDiagnosisHistoryModal(false);
   };
-  const handleClick = (event, row) => {
-    setAnchorEl(event.currentTarget);
-    setCurrentRow(row);
-  };
+
   const handleMenuClick = (action) => {
     handleClose();
     if (action === "delete") {
-      let deleteDiagnosis = updatedProvisionalDiagnosis.filter(
-        (item) => item.id !== currentRow.id
-      );
-      setupdatedProvisionalDiagnosis(deleteDiagnosis);
+      // dispatch(deleteProvisio);
+      // setupdatedProvisionalDiagnosis(deleteDiagnosis);
     }
   };
 

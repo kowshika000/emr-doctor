@@ -71,6 +71,10 @@ function DisplayMedication({ patientId }) {
     { title: "ROA", dataIndex: "roa", key: "roa" },
     { title: "Duration", dataIndex: "duration", key: "duration" },
     { title: "Remarks", dataIndex: "instructions", key: "instructions" },
+    { title: "Entered Date", dataIndex: "createdAt", key: "createdAt" },
+
+    { title: "Entered  By", dataIndex: "createdBy", key: "createdBy" },
+
   ];
 
   const prescribedMedicines = (value) => {

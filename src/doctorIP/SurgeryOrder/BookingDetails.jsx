@@ -1,25 +1,24 @@
 import React, { useState } from "react";
-import {
-  TextField,
-  Grid,
-  MenuItem,
-  Box,
-} from "@mui/material";
+import { TextField, Grid, MenuItem, Box } from "@mui/material";
+import { useDispatch } from "react-redux";
+import { createSurgeryDetails } from "../../Redux/slice/IpSlice/POST/surgeryDetails";
+import { toast } from "react-toastify";
 
-const SurgeryBookingDetails = () => {
+const SurgeryBookingDetails = ({ patientId }) => {
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     surgeryDate: "",
-    surgeryTimeFrom: "",
-    surgeryTimeTo: "",
+    startTime: "",
+    endTime: "",
     theatre: "",
     surgeon: "",
-    consultant: "",
-    severity: "",
-    anaesthesia: "",
+    seniorSurgeon: "",
+    surgerySeverity: "",
+    anesthesia: "",
     surgeryType: "",
     emergencyReason: "",
-    nursingInstruction: "",
-    otInstruction: "",
+    specialNursingInstruction: "",
+    specialInstructionOt: "",
     comments: "",
   });
 
@@ -31,19 +30,20 @@ const SurgeryBookingDetails = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Form Submitted:", formData);
+    dispatch(createSurgeryDetails({ ...formData, patientId })).then((res) => {
+      if (res?.payload?.data?.message) {
+        toast.success(res.payload.data.message); // success toast
+      } else {
+        toast.error("Something went wrong");
+      }
+    });
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginTop: "16px" }}>
+    <form style={{ marginTop: "16px" }}>
       <div className="my-4 header-container">
-        <h6 >
-          Surgery Booking Details
-        </h6>
-        <Box
-         
-          className=" custom-btn"
-          onClick={() => alert("Schedule Successfully!")}
-        >
+        <h6>Surgery Booking Details</h6>
+        <Box className=" custom-btn" onClick={handleSubmit}>
           Schedule Surgery
         </Box>
       </div>
@@ -80,8 +80,8 @@ const SurgeryBookingDetails = () => {
                 type="time"
                 label="From"
                 InputLabelProps={{ shrink: true }}
-                name="surgeryTimeFrom"
-                value={formData.surgeryTimeFrom}
+                name="startTime"
+                value={formData.startTime}
                 onChange={handleChange}
                 variant="standard"
               />
@@ -93,8 +93,8 @@ const SurgeryBookingDetails = () => {
                 type="time"
                 label="To"
                 InputLabelProps={{ shrink: true }}
-                name="surgeryTimeTo"
-                value={formData.surgeryTimeTo}
+                name="endTime"
+                value={formData.endTime}
                 onChange={handleChange}
                 variant="standard"
               />
@@ -143,8 +143,8 @@ const SurgeryBookingDetails = () => {
             fullWidth
             select
             label="Consultant/Sr. Surgeon"
-            name="consultant"
-            value={formData.consultant}
+            name="seniorSurgeon"
+            value={formData.seniorSurgeon}
             onChange={handleChange}
             variant="standard"
             className="custom-dropdown"
@@ -161,8 +161,8 @@ const SurgeryBookingDetails = () => {
             fullWidth
             select
             label="Surgery Severity"
-            name="severity"
-            value={formData.severity}
+            name="surgerySeverity"
+            value={formData.surgerySeverity}
             onChange={handleChange}
             variant="standard"
             className="custom-dropdown"
@@ -178,14 +178,14 @@ const SurgeryBookingDetails = () => {
           <TextField
             fullWidth
             select
-            label="Anaesthesia"
-            name="anaesthesia"
-            value={formData.anaesthesia}
+            label="Anesthesia"
+            name="anesthesia"
+            value={formData.anesthesia}
             onChange={handleChange}
             variant="standard"
             className="custom-dropdown"
           >
-            <MenuItem value="">Select Anaesthesia</MenuItem>
+            <MenuItem value="">Select Anesthesia</MenuItem>
             <MenuItem value="General">General</MenuItem>
             <MenuItem value="Local">Local</MenuItem>
             <MenuItem value="Sedation">Sedation</MenuItem>
@@ -232,8 +232,8 @@ const SurgeryBookingDetails = () => {
           <TextField
             fullWidth
             label="Special Nursing Instruction"
-            name="nursingInstruction"
-            value={formData.nursingInstruction}
+            name="specialNursingInstruction"
+            value={formData.specialNursingInstruction}
             onChange={handleChange}
             variant="standard"
             placeholder="Enter nursing instructions"
@@ -244,8 +244,8 @@ const SurgeryBookingDetails = () => {
           <TextField
             fullWidth
             label="Special Instruction to OT"
-            name="otInstruction"
-            value={formData.otInstruction}
+            name="specialInstructionOt"
+            value={formData.specialInstructionOt}
             onChange={handleChange}
             variant="standard"
             placeholder="Enter instructions"

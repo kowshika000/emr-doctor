@@ -9,29 +9,44 @@ import {
   FormControl,
   InputLabel,
   Button,
+  Autocomplete,
 } from "@mui/material";
 import FormButton from "../../../../component/FormButton";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { createDiagnosis } from "../../../../Redux/slice/DoctSlice/POST/diagnosisSlice";
+import { fetchSearchDiagnosis } from "../../../../Redux/slice/IpSlice/GET/searchDiagnosis";
 
 function AddDiagnosis({
   handleAddDiagnosisModalClose,
   getDiagnosis,
-  appointmentId,
+  patientId,
 }) {
   const dispatch = useDispatch();
-  const [category, setCategory] = useState("");
-  const [diagnosis, setDiagnosis] = useState("");
+  const [diagnosis, setDiagnosis] = useState(null);
+
+  const { data } = useSelector((state) => state?.docEmr?.searchDiagnosis);
+
+  console.log("Diagnosis data:", data);
+
+  const diagnosisOptions =
+    data?.map((item) => ({
+      label: item.diagnosisName,
+      value: item.id,
+    })) || [];
+
+  console.log("Diagnosis options:", diagnosisOptions);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const newDiagnosis = {
-      category,
-      diagnosis,
-      appointmentId,
-    };
 
-    dispatch(createDiagnosis(newDiagnosis))
+    const diagnosisId = diagnosis?.value;
+
+    if (!diagnosisId) {
+      alert("Please select a valid diagnosis.");
+      return;
+    }
+
+    dispatch(createDiagnosis({ patientId, diagnosisId }))
       .unwrap()
       .then(() => {
         getDiagnosis();
@@ -46,29 +61,43 @@ function AddDiagnosis({
     <Dialog
       open={true}
       onClose={handleAddDiagnosisModalClose}
-      maxWidth="md"
+      maxWidth="sm"
       fullWidth
     >
       <form onSubmit={handleSubmit}>
         <DialogContent>
           <h6>Add Final Diagnosis</h6>
           <div className="row">
-            <div className="form-group" style={{ marginBottom: "16px" }}>
+            <div className="form-group my-3" style={{ marginBottom: "16px" }}>
               <FormControl fullWidth size="small">
-                <InputLabel>Diagnosis</InputLabel>
-                <Select
+                <Autocomplete
+                  freeSolo
+                  options={diagnosisOptions}
                   value={diagnosis}
-                  onChange={(e) => setDiagnosis(e.target.value)}
-                  size="small"
-                >
-                  <MenuItem value="">Select a Diagnosis</MenuItem>
-                  <MenuItem value="Malignant neoplasm of head of pancreas">
-                    Malignant neoplasm of head of pancreas - C25.0
-                  </MenuItem>
-                  <MenuItem value="Abdominal actinomycosis">
-                    Abdominal actinomycosis - A42.1
-                  </MenuItem>
-                </Select>
+                  onChange={(event, newValue) => {
+                    setDiagnosis(newValue);
+                  }}
+                  onInputChange={(event, value, reason) => {
+                    if (reason === "input") {
+                      dispatch(fetchSearchDiagnosis({ name: value }));
+                    }
+                  }}
+                  getOptionLabel={(option) =>
+                    typeof option === "string" ? option : option?.label || ""
+                  }
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Diagnosis"
+                      variant="outlined"
+                      size="small"
+                      InputProps={{
+                        ...params.InputProps,
+                        autoComplete: "off",
+                      }}
+                    />
+                  )}
+                />
               </FormControl>
             </div>
 

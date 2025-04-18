@@ -5,7 +5,7 @@ import { Box, Card, CardContent, Typography } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchROS } from "../../../../Redux/slice/DoctSlice/GET/rosSlice";
 
-function DisplayRos({ appointmentId, patientId }) {
+function DisplayRos({ patientId }) {
   const dispatch = useDispatch();
   const [viewHistoryModal, setViewHistoryModal] = useState(false);
   const [addRosModal, setAddRosModal] = useState(false);
@@ -14,7 +14,7 @@ function DisplayRos({ appointmentId, patientId }) {
   const { data } = useSelector((state) => state?.docEmr?.ros);
 
   const getROS = () => {
-    dispatch(fetchROS({ appointmentId }));
+    dispatch(fetchROS({ patientId }));
   };
 
   useEffect(() => {
@@ -68,23 +68,31 @@ function DisplayRos({ appointmentId, patientId }) {
             .join(", ");
 
           return (
-            <Card
-              key={row.id}
-              sx={{ marginBottom: 1, backgroundColor: "#f5f5f5" }}
-            >
-              <CardContent>
-                <Typography variant="body1">
-                  <strong>Specialization: </strong> {row.specialization}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>Symptoms: </strong> {row.symptoms}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>Other System Response: </strong>{" "}
-                  {otherSymptoms || "None"}
-                </Typography>
-              </CardContent>
-            </Card>
+            <>
+              <Card
+                key={row.id}
+                sx={{ marginBottom: 1, backgroundColor: "#f5f5f5" }}
+              >
+                <CardContent>
+                  <Typography variant="body1">
+                    <strong>Specialization: </strong> {row.specialization}
+                  </Typography>
+                  <Typography variant="body1">
+                    <strong>Symptoms: </strong> {row.symptoms}
+                  </Typography>
+                  <Typography variant="body1">
+                    <strong>Other System Response: </strong>{" "}
+                    {otherSymptoms || "None"}
+                  </Typography>
+                </CardContent>
+              </Card>
+              <Typography
+                variant="subtitle2"
+                sx={{ mt: 2, textAlign: "right", color: "text.secondary" }}
+              >
+                Entered Date: {row.createdAt} | Entered By: {row.createdBy || "N/A"}
+              </Typography>
+            </>
           );
         })
       ) : (
@@ -102,6 +110,7 @@ function DisplayRos({ appointmentId, patientId }) {
           handleAddRosModalClose={handleAddRosModalClose}
           reviews={reviews}
           getROS={getROS}
+          patientId={patientId}
         />
       )}
 
@@ -109,6 +118,7 @@ function DisplayRos({ appointmentId, patientId }) {
         <RosHistory
           handleViewHistoryModalClose={handleViewHistoryModalClose}
           reviewsAdded={reviewsAdded}
+          patientId={patientId}
         />
       )}
     </Box>

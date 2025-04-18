@@ -4,8 +4,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { createConfidentialStatement } from "../../../../Redux/slice/DoctSlice/POST/confidentialSlice";
 import { fetchConfidentialStatement } from "../../../../Redux/slice/DoctSlice/GET/confidentialSlice";
 import { updateConfidentialStatement } from "../../../../Redux/slice/DoctSlice/PUT/confidentialSlice";
+import { deleteCofidential } from "../../../../Redux/slice/IpSlice/DELETE/confidential";
 
-function DisplayConfidentalDetails({ appointmentId, patientId }) {
+function DisplayConfidentalDetails({ patientId }) {
   const dispatch = useDispatch();
   const [notes, setNotes] = useState([]);
 
@@ -16,9 +17,9 @@ function DisplayConfidentalDetails({ appointmentId, patientId }) {
     dispatch(
       createConfidentialStatement({
         confidentialStatement: note,
-        appointmentId,
+        patientId,
       })
-    ).then(() => dispatch(fetchConfidentialStatement({ appointmentId })));
+    ).then(() => dispatch(fetchConfidentialStatement({ patientId })));
   };
 
   const handleEditNote = (updatedNotes) => {
@@ -26,30 +27,32 @@ function DisplayConfidentalDetails({ appointmentId, patientId }) {
     dispatch(
       updateConfidentialStatement({
         confidentialStatement: note,
-        appointmentId,
+        patientId,
       })
-    ).then(() => dispatch(fetchConfidentialStatement({ appointmentId })));
+    ).then(() => dispatch(fetchConfidentialStatement({ patientId })));
   };
 
   const handleDeleteNote = (deletedNote) => {
-    setNotes((prevNotes) =>
-      prevNotes.filter((note) => note.id !== deletedNote.id)
-    );
+    dispatch(deleteCofidential({ id: deletedNote.id }))
+      .then(() => dispatch(fetchConfidentialStatement({ patientId })))
+      .catch((error) => console.error("Error deleting note:", error));
   };
 
   useEffect(() => {
-    dispatch(fetchConfidentialStatement({ appointmentId }));
+    dispatch(fetchConfidentialStatement({ patientId }));
   }, [dispatch]);
 
   useEffect(() => {
-    if (data) {
+    if (Array.isArray(data)) {
       const formattedNotes = data.map((item, index) => ({
         id: index + 1,
         notes: item.confidentialStatement || "No data",
-        enteredDate: new Date().toISOString().split("T")[0],
-        enteredBy: "Kowshika",
+        enteredDate: item.createdAt || "--",
+        enteredBy: item.createdBy || "--",
       }));
       setNotes(formattedNotes);
+    } else {
+      setNotes([]);
     }
   }, [data]);
 

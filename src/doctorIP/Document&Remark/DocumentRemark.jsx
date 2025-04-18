@@ -5,14 +5,14 @@ import Remarks from "./component/Remarks";
 import ConsentForms from "./component/consentforms";
 import Handouts from "./component/Handouts";
 
-const DocumentandRemarkIp = () => {
+const DocumentandRemarkIp = ({patientId}) => {
   return (
     <div className="full-screen-scrollable">
-      <ScannedDocuments />
-      <DocumentsIssued />
-      <Remarks />
-      <ConsentForms />
-      <Handouts />
+      <ScannedDocuments patientId={patientId} />
+      <DocumentsIssued patientId={patientId} />
+      <Remarks patientId={patientId} />
+      <ConsentForms patientId={patientId} />
+      <Handouts patientId={patientId} />
     </div>
   );
 };

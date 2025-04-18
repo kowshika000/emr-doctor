@@ -128,9 +128,16 @@ const Notes = ({
             />
           </Grid>
         </Grid>
-      ) : !showNoteForm && rows.length === 0 ? (
-        <div style={{ borderBottom: "1px solid gray" }}>
-          <p>No notes available</p>
+      ) : rows?.length === 0 ? (
+        <div
+          style={{
+            border: "1px dashed gray",
+            padding: "10px",
+            textAlign: "center",
+            borderRadius: "5px",
+          }}
+        >
+          <p style={{ margin: 0, color: "#666" }}>No Data available</p>
         </div>
       ) : (
         <Table

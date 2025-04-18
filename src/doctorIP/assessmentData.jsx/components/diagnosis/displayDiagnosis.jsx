@@ -6,33 +6,22 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchDiagnosis } from "../../../../Redux/slice/DoctSlice/GET/diagnosisSlice";
 import { deleteDiagnosis } from "../../../../Redux/slice/DoctSlice/DELETE/diagnosisSlice";
 import { MoreOutlined } from "@ant-design/icons";
+import { updateDiagnosis } from "../../../../Redux/slice/DoctSlice/PUT/diagnosisSlice";
 
-function DisplayDiagnosis({ appointmentId }) {
+function DisplayDiagnosis({ patientId }) {
   const dispatch = useDispatch();
   const [addDiagnosisModal, setAddDiagnosisModal] = useState(false);
   const [diagnosisHistoryModal, setDiagnosisHistoryModal] = useState(false);
-  const [localData, setLocalData] = useState([]);
 
   const { data } = useSelector((state) => state.docEmr?.diagnosis);
 
   const getDiagnosis = () => {
-    dispatch(fetchDiagnosis({ appointmentId }));
+    dispatch(fetchDiagnosis({ patientId }));
   };
 
   useEffect(() => {
     getDiagnosis();
   }, [dispatch]);
-
-  useEffect(() => {
-    if (data && data.length > 0) {
-      // Set first item as primary, rest as secondary
-      const updatedData = data.map((item, index) => ({
-        ...item,
-        category: index === 0 ? "Primary" : "Secondary",
-      }));
-      setLocalData(updatedData);
-    }
-  }, [data]);
 
   const handleAddDiagnosisModalOpen = () => setAddDiagnosisModal(true);
   const handleAddDiagnosisModalClose = () => setAddDiagnosisModal(false);
@@ -52,21 +41,21 @@ function DisplayDiagnosis({ appointmentId }) {
       });
   };
 
-  const handleMakePrimary = (row) => {
-    const updated = localData
-      .filter((item) => item.id !== row.id) // Remove selected item
-      .map((item) => ({ ...item, category: "Secondary" })); // Set all others to secondary
-
-    const newPrimary = { ...row, category: "Primary" };
-
-    // Move selected item to the top
-    setLocalData([newPrimary, ...updated]);
+  const handleMakePrimary = (id) => {
+    dispatch(updateDiagnosis({ id, patientId }))
+      .unwrap()
+      .then(() => {
+        getDiagnosis();
+      })
+      .catch((error) => {
+        console.error("Failed to update diagnosis:", error);
+      });
   };
 
   const menu = (row) => (
     <Menu>
       {row.category !== "Primary" && (
-        <Menu.Item key="primary" onClick={() => handleMakePrimary(row)}>
+        <Menu.Item key="primary" onClick={() => handleMakePrimary(row.id)}>
           Make Diagnosis Primary
         </Menu.Item>
       )}
@@ -85,6 +74,11 @@ function DisplayDiagnosis({ appointmentId }) {
       title: "Category",
       dataIndex: "category",
       key: "category",
+    },
+    {
+      title: "ICD Code",
+      dataIndex: "icdCode",
+      key: "icdCode",
     },
     {
       title: "Diagnosis",
@@ -114,6 +108,12 @@ function DisplayDiagnosis({ appointmentId }) {
     },
   ];
 
+  const sortedData = data?.slice().sort((a, b) => {
+    if (a.category === "Primary" && b.category !== "Primary") return -1;
+    if (a.category !== "Primary" && b.category === "Primary") return 1;
+    return 0;
+  });
+
   return (
     <div>
       <div className="mb-3">
@@ -133,7 +133,7 @@ function DisplayDiagnosis({ appointmentId }) {
         </div>
         <div className="card-body">
           <Table
-            dataSource={localData}
+            dataSource={sortedData}
             columns={columns}
             rowKey="id"
             className="table-container"
@@ -145,7 +145,7 @@ function DisplayDiagnosis({ appointmentId }) {
         <AddDiagnosis
           handleAddDiagnosisModalClose={handleAddDiagnosisModalClose}
           getDiagnosis={getDiagnosis}
-          appointmentId={appointmentId}
+          patientId={patientId}
         />
       )}
 

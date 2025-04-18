@@ -12,11 +12,14 @@ import dayjs from "dayjs";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchOpPatientList } from "../../Redux/slice/OpSlice/GET/patientListSlice";
 import { fetchOpPatientDetail } from "../../Redux/slice/OpSlice/GET/patientDetailSlice";
+import ReferToIp from "../referral/referToIp";
 
-const DoctorOpDashboard = ({ navigate }) => {
+const DoctorOpDashboard = ({ navigate, doctorId }) => {
   const dispatch = useDispatch();
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [startedPatients, setStartedPatients] = useState({});
+  const [referToIP, setReferToIP] = useState(false);
+
   const { data } = useSelector((state) => state?.docEmr?.opPatientList);
 
   useEffect(() => {
@@ -37,7 +40,7 @@ const DoctorOpDashboard = ({ navigate }) => {
 
   const handlePatientClick = (id) => {
     localStorage.setItem("docPatientId", id);
-    dispatch(fetchOpPatientDetail({ doctorId: 3, patientId: id }));
+    dispatch(fetchOpPatientDetail({ doctorId, patientId: id }));
     navigate(`/secure/doctorEmr/opDetails/${id}`);
   };
 
@@ -48,7 +51,7 @@ const DoctorOpDashboard = ({ navigate }) => {
   const isToday = dayjs().isSame(selectedDate, "day");
 
   useEffect(() => {
-    dispatch(fetchOpPatientList({ doctorId: 3 }));
+    dispatch(fetchOpPatientList({ doctorId }));
   }, [dispatch]);
 
   const toggleEncounter = (patientId) => {
@@ -93,7 +96,7 @@ const DoctorOpDashboard = ({ navigate }) => {
           <UserAddOutlined /> Refer To OP (Consultation)
         </Menu.Item>
 
-        <Menu.Item key="referToIP">
+        <Menu.Item key="referToIP" onClick={() => setReferToIP(true)}>
           <HomeOutlined /> Refer To IP (Admission)
         </Menu.Item>
 
@@ -225,6 +228,7 @@ const DoctorOpDashboard = ({ navigate }) => {
         rowKey="id"
         className="table-container"
       />
+      {referToIP && <ReferToIp onClose={() => setReferToIP(false)} />}
     </div>
   );
 };

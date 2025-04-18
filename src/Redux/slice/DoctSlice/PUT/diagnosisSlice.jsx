@@ -8,7 +8,8 @@ export const updateDiagnosis = createAsyncThunk(
     try {
       const response = await AxiosInstance.put(
         API_ENDPOINTS.EDIT_DIAGNOSIS,
-        credentials
+        null,
+        { params: credentials }
       );
       return response?.data;
     } catch (error) {

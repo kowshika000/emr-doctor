@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -12,11 +12,27 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import CustomTable from "../components/Table";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchFollowUpPlan } from "../../Redux/slice/IpSlice/GET/followUpPlan";
+import FormInput from "../../component/FormInput";
+import { Table } from "antd";
+import { createFollowUpPlan } from "../../Redux/slice/IpSlice/POST/followUpPlan";
 
-const FollowUpPlan = () => {
-  const [open, setOpen] = useState(false); // State for dialog visibility
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState("30");
+const FollowUpPlan = ({ patientId }) => {
+  const dispatch = useDispatch();
+  const [open, setOpen] = useState(false);
+  const [formState, setFormState] = useState({
+    recallDate: "",
+    timeSlot: "20",
+    followUpPlan: "",
+  });
+
+  const { data } = useSelector((state) => state.docEmr?.followUp);
+
+  useEffect(() => {
+    dispatch(fetchFollowUpPlan({ patientId }));
+  }, [dispatch]);
+
   const handleOpen = () => {
     setOpen(true); // Open the dialog
   };
@@ -25,27 +41,27 @@ const FollowUpPlan = () => {
     setOpen(false); // Close the dialog
   };
 
-  const rows = [
-    {
-      id: 1,
-      recallDate: "11/14/2024",
-      followUpPlan: "knk",
-      enteredDate: "Dr. Neil Armstrong",
-      enteredBy: "Nov 14, 2024 12:18",
-      options: "Options Data",
-    },
-  ];
+  const handleChange = (field, value) => {
+    setFormState((prevState) => ({
+      ...prevState,
+      [field]: value,
+    }));
+  };
 
   const columns = [
-    { field: "recallDate", headerName: "Recall Date", flex: 1 },
-    { field: "followUpPlan", headerName: "Follow up Plan", flex: 1 },
-    { field: "enteredDate", headerName: "Entered Date", flex: 1 },
-    { field: "enteredBy", headerName: "Entered By", flex: 1 },
-    { field: "options", headerName: "Options", flex: 1 },
+    { dataIndex: "recallDate", title: "Recall Date" },
+    { dataIndex: "followUpPlan", title: "Follow up Plan" },
+    { dataIndex: "createdAt", title: "Entered Date" },
+    { dataIndex: "createdBy", title: "Entered By" },
   ];
-  const handleTimeSlotChange = (event) => {
-    setSelectedTimeSlot(event.target.value); // Update selected time slot
+
+  const handleSave = () => {
+    dispatch(createFollowUpPlan({ ...formState, patientId })).then(() => {
+      dispatch(fetchFollowUpPlan({ patientId }));
+      handleClose();
+    });
   };
+
   return (
     <div>
       <div
@@ -56,57 +72,53 @@ const FollowUpPlan = () => {
           alignItems: "center",
         }}
       >
-        <h6 >Follow Up Plan</h6>
-        <Box
-        className="custom-btn"
-          onClick={handleOpen} // Open the dialog on click
-        >
+        <h6>Follow Up Plan</h6>
+        <Box className="custom-btn" onClick={handleOpen}>
           Add Follow Up Plan
         </Box>
       </div>
-      <CustomTable rows={rows} columns={columns} />
-
+      <Table dataSource={data} columns={columns} className="table-container" />
       {/* Dialog Component */}
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
         <DialogTitle>Add Follow Up Plan</DialogTitle>
         <DialogContent>
           <TextField
-            fullWidth
             label="Recall Date"
             type="date"
+            fullWidth
+            value={formState.recallDate}
+            onChange={(e) => handleChange("recallDate", e.target.value)}
             InputLabelProps={{ shrink: true }}
-            margin="dense"
-            variant="standard"
+            sx={{ mt: 2 }}
+            size="small"
           />
           <Typography variant="body1" sx={{ mt: 2 }}>
             Time Slot
           </Typography>
           <RadioGroup
             row
-            value={selectedTimeSlot}
-            onChange={handleTimeSlotChange}
+            value={formState.timeSlot}
+            onChange={(e) => handleChange("timeSlot", e.target.value)}
             sx={{ mt: 1 }}
           >
+            <FormControlLabel value="20" control={<Radio />} label="20 min" />
             <FormControlLabel value="30" control={<Radio />} label="30 min" />
-            <FormControlLabel value="60" control={<Radio />} label="60 min" />
+            <FormControlLabel value="40" control={<Radio />} label="40 min" />
           </RadioGroup>
           <TextField
-            fullWidth
             label="Follow Up Plan"
-            margin="dense"
-            variant="standard"
+            fullWidth
+            value={formState.followUpPlan}
+            onChange={(e) => handleChange("followUpPlan", e.target.value)}
+            sx={{ mt: 2 }}
+            size="small"
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="secondary">
             Cancel
           </Button>
-          <Button
-            onClick={() => {
-              /* Save logic here */ handleClose();
-            }}
-            color="primary"
-          >
+          <Button onClick={handleSave} color="primary">
             Save
           </Button>
         </DialogActions>

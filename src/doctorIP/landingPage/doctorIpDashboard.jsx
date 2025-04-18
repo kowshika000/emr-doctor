@@ -5,14 +5,16 @@ import DoctorIpSearch from "./doctorIpSearch";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchIpPatientList } from "../../Redux/slice/IpSlice/GET/patientListSlice";
 
-const DoctorIpDashboard = () => {
+const DoctorIpDashboard = ({ doctorId }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { data } = useSelector((state) => state?.docEmr?.ipPatientList);
+  const { data, loading } = useSelector(
+    (state) => state?.docEmr?.ipPatientList
+  );
 
   useEffect(() => {
-    dispatch(fetchIpPatientList({ doctorId: 1 }));
+    dispatch(fetchIpPatientList({ doctorId }));
   }, [dispatch]);
 
   const columns = [

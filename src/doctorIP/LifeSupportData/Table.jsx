@@ -1,22 +1,26 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  IconButton,
-  Menu,
-  MenuItem,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Button,
-  TextField,
-  Select,
-  MenuItem as DropdownMenuItem,
-  InputLabel,
-  FormControl,
+  Box,
 } from "@mui/material";
 import CustomTable from "../components/Table";
+import { useDispatch, useSelector } from "react-redux";
+import { createLifeSupport } from "../../Redux/slice/IpSlice/POST/lifeSupport";
+import FormInput from "../../component/FormInput";
+import { fetchLifeSupport } from "../../Redux/slice/IpSlice/GET/lifeSupport";
 
-const LifeSupportTbl = () => {
+const LifeSupportTbl = ({ patientId }) => {
+  const dispatch = useDispatch();
+  const { data } = useSelector((state) => state.docEmr?.lifeSupport);
+  console.log("Life Support Data:", data);
+
+  useEffect(() => {
+    dispatch(fetchLifeSupport({ patientId }));
+  }, [dispatch]);
   const rows = [
     {
       id: 1,
@@ -24,7 +28,7 @@ const LifeSupportTbl = () => {
       startTime: "11/19/2024 12:00",
       endTime: "11/20/2024 12:00",
       totalTime: "24 hrs",
-      enteredDate: "11/14/2024 0:39",  
+      enteredDate: "11/14/2024 0:39",
       enteredBy: "Dr. Neil Armstrong",
       options: "View / Edit",
     },
@@ -33,11 +37,9 @@ const LifeSupportTbl = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
-    startTime: "",
-    endTime: "",
+    startDate: "",
+    endDate: "",
     totalTime: "",
-    enteredDate: "",
-    enteredBy: "",
   });
 
   const columns = [
@@ -67,12 +69,12 @@ const LifeSupportTbl = () => {
   };
 
   const handleDialogSubmit = () => {
+    dispatch(createLifeSupport({ ...formData, patientId }));
     console.log("Form submitted:", formData);
     setDialogOpen(false);
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
+  const handleInputChange = (name, value) => {
     setFormData((prev) => {
       const updatedForm = { ...prev, [name]: value };
       if (name === "startDate" || name === "endDate") {
@@ -87,7 +89,7 @@ const LifeSupportTbl = () => {
 
   const handleAddClick = () => {
     setFormData({
-      supportValue: "",
+      name: "",
       startDate: "",
       endDate: "",
       totalTime: "",
@@ -108,54 +110,51 @@ const LifeSupportTbl = () => {
         <CustomTable rows={rows} columns={columns} />
       </div>
 
-      <Dialog open={dialogOpen} onClose={handleDialogClose}>
-        <DialogTitle>Add Entry</DialogTitle>
+      <Dialog
+        open={dialogOpen}
+        onClose={handleDialogClose}
+        fullWidth
+        maxWidth="sm"
+      >
         <DialogContent>
-          <FormControl fullWidth variant="standard">
-            <InputLabel id="supportValue-label">Support Value</InputLabel>
-            <Select
-              labelId="supportValue-label"
-              name="supportValue"
-              value={formData.supportValue}
-              onChange={handleInputChange}
-            >
-              <DropdownMenuItem value="Syring Pump">
-                Syring Pump
-              </DropdownMenuItem>
-              <DropdownMenuItem value="Ventilator">Ventilator</DropdownMenuItem>
-              <DropdownMenuItem value="Infusion Pump">
-                Infusion Pump
-              </DropdownMenuItem>
-            </Select>
-          </FormControl>
-          <TextField
-            label="Start Date*"
-            name="startDate"
-            type="datetime-local"
-            value={formData.startDate}
-            onChange={handleInputChange}
-            fullWidth
-            variant="standard"
-            InputLabelProps={{ shrink: true }}
-          />
-          <TextField
-            label="End Date*"
-            name="endDate"
-            type="datetime-local"
-            value={formData.endDate}
-            onChange={handleInputChange}
-            fullWidth
-            variant="standard"
-            InputLabelProps={{ shrink: true }}
-          />
-          <TextField
-            label="Total Time"
-            name="totalTime"
-            value={formData.totalTime}
-            onChange={handleInputChange}
-            fullWidth
-            variant="standard"
-          />
+          <h6 className="mb-3">Add Entry</h6>
+          <Box display="flex" flexDirection="column" gap={2}>
+            <FormInput
+              label="Support Value"
+              name="name"
+              type="select"
+              options={[
+                { value: "Syring Pump", label: "Syring Pump" },
+                { value: "Ventilator", label: "Ventilator" },
+                { value: "Infusion Pump", label: "Infusion Pump" },
+              ]}
+              value={formData.name}
+              onChange={(value) => handleInputChange("name", value)}
+            />
+            <FormInput
+              label="Start Date"
+              name="startDate"
+              type="datetime-local"
+              value={formData.startDate}
+              onChange={(value) => handleInputChange("startDate", value)}
+              required
+            />
+            <FormInput
+              label="End Date"
+              name="endDate"
+              type="datetime-local"
+              value={formData.endDate}
+              onChange={(value) => handleInputChange("endDate", value)}
+              required
+            />
+            <FormInput
+              label="Total Time"
+              name="totalTime"
+              value={formData.totalTime}
+              onChange={(value) => handleInputChange("totalTime", value)}
+              disabled
+            />
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogClose} color="primary">

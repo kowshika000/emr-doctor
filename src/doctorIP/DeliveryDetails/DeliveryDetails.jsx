@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogActions,
@@ -10,11 +10,24 @@ import {
   MenuItem,
   InputLabel,
   FormControl,
+  Box,
 } from "@mui/material";
 import CustomTable from "../components/Table";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchDeliveryDetails } from "../../Redux/slice/IpSlice/GET/deliveryDetails";
+import FormInput from "../../component/FormInput";
+import { createDeliveryDetails } from "../../Redux/slice/IpSlice/POST/deliveryDetails";
+import { Table } from "antd";
 
-const DeliveryDetails = () => {
+const DeliveryDetails = ({ patientId }) => {
+  const dispatch = useDispatch();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const { data } = useSelector((state) => state.docEmr?.delivery);
+  console.log("Delivery Details Data:", data);
+
+  useEffect(() => {
+    dispatch(fetchDeliveryDetails({ patientId }));
+  }, [dispatch]);
   const [formData, setFormData] = useState({
     parentName: "",
     babyName: "",
@@ -23,41 +36,25 @@ const DeliveryDetails = () => {
     babyHeight: "",
     babyWeight: "",
     babyGender: "",
-    deliveryType: "",
+    typeOfDelivery: "",
     tribe: "",
     remarks: "",
   });
-  const [rows, setRows] = useState([
-    {
-      id: 1,
-      parentName: "John Doe",
-      babyName: "Baby Doe",
-      dateOfBirth: "2024-11-01",
-      birthTime: "14:00",
-      babyHeight: "50 cm",
-      babyWeight: "3.2 kg",
-      babyGender: "Male",
-      deliveryType: "Normal",
-      tribe: "Tribe A",
-      remarks: "Healthy baby",
-    },
-  ]);
 
   const columns = [
-    { field: "parentName", headerName: "Parent Name" },
-    { field: "babyName", headerName: "Baby Name" },
-    { field: "dateOfBirth", headerName: "Date of Birth" },
-    { field: "birthTime", headerName: "Birth Time" },
-    { field: "babyHeight", headerName: "Baby Height" },
-    { field: "babyWeight", headerName: "Baby Weight" },
-    { field: "babyGender", headerName: "Baby Gender" },
-    { field: "deliveryType", headerName: "Type of Delivery" },
-    { field: "tribe", headerName: "Tribe" },
-    { field: "remarks", headerName: "Remarks" },
+    { key: "parentName", title: "Parent Name", dataIndex: "parentName" },
+    { key: "babyName", title: "Baby Name", dataIndex: "babyName" },
+    { key: "dateOfBirth", title: "Date of Birth", dataIndex: "dateOfBirth" },
+    { key: "birthTime", title: "Birth Time", dataIndex: "birthTime" },
+    { key: "babyHeight", title: "Baby Height", dataIndex: "babyHeight" },
+    { key: "babyWeight", title: "Baby Weight", dataIndex: "babyWeight" },
+    { key: "babygender", title: "Baby Gender", dataIndex: "babygender" },
+    { key: "typeOfDelivery", title: "Type of Delivery", dataIndex: "typeOfDelivery" },
+    { key: "tribe", title: "Tribe", dataIndex: "tribe" },
+    { key: "remarks", title: "Remarks", dataIndex: "remarks" },
   ];
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
+  const handleInputChange = (name, value) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -70,8 +67,26 @@ const DeliveryDetails = () => {
   };
 
   const handleDialogSubmit = () => {
-    console.log("Form Submitted:", formData);
-    setDialogOpen(false);
+    dispatch(createDeliveryDetails({ ...formData, patientId })).then((res) => {
+      if (res.meta.requestStatus === "fulfilled") {
+        dispatch(fetchDeliveryDetails({ patientId }));
+        setFormData({
+          parentName: "",
+          babyName: "",
+          dateOfBirth: "",
+          birthTime: "",
+          babyHeight: "",
+          babyWeight: "",
+          babyGender: "",
+          typeOfDelivery: "",
+          tribe: "",
+          remarks: "",
+        });
+        setDialogOpen(false);
+      } else {
+        console.error("Error submitting form:", res.error.message);
+      }
+    });
   };
 
   return (
@@ -83,7 +98,11 @@ const DeliveryDetails = () => {
         </div>
       </div>
       <div>
-        <CustomTable rows={rows} columns={columns} />
+        <Table
+          dataSource={data}
+          columns={columns}
+          className="table-container"
+        />
       </div>
       <Dialog
         open={dialogOpen}
@@ -91,104 +110,76 @@ const DeliveryDetails = () => {
         fullWidth
         maxWidth="sm"
       >
-        <DialogTitle>Add Delivery Details</DialogTitle>
+        {/* <DialogTitle>Add Delivery Details</DialogTitle> */}
         <DialogContent>
-          <TextField
-            label="Parent Name"
-            name="parentName"
-            value={formData.parentName}
-            onChange={handleInputChange}
-            fullWidth
-            variant="standard"
-          />
-          <TextField
-            label="Baby Name"
-            name="babyName"
-            value={formData.babyName}
-            onChange={handleInputChange}
-            fullWidth
-            variant="standard"
-          />
-          <TextField
-            label="Date of Birth"
-            name="dateOfBirth"
-            type="date"
-            value={formData.dateOfBirth}
-            onChange={handleInputChange}
-            fullWidth
-            variant="standard"
-            InputLabelProps={{ shrink: true }}
-          />
-          <TextField
-            label="Birth Time"
-            name="birthTime"
-            type="time"
-            value={formData.birthTime}
-            onChange={handleInputChange}
-            fullWidth
-            variant="standard"
-            InputLabelProps={{ shrink: true }}
-          />
-          <TextField
-            label="Baby Height (cm)"
-            name="babyHeight"
-            value={formData.babyHeight}
-            onChange={handleInputChange}
-            fullWidth
-            variant="standard"
-          />
-          <TextField
-            label="Baby Weight (kg)"
-            name="babyWeight"
-            value={formData.babyWeight}
-            onChange={handleInputChange}
-            fullWidth
-            variant="standard"
-          />
-          <FormControl fullWidth variant="standard">
-            <InputLabel id="baby-gender-label">Baby Gender</InputLabel>
-            <Select
-              labelId="baby-gender-label"
-              name="babyGender"
+          <h6 className="mb-3">Add Delivery Details</h6>
+          <Box className="form-container-1">
+            <FormInput
+              label="Parent Name"
+              value={formData.parentName}
+              onChange={(value) => handleInputChange("parentName", value)}
+            />
+            <FormInput
+              label="Baby Name"
+              value={formData.babyName}
+              onChange={(value) => handleInputChange("babyName", value)}
+            />
+            <FormInput
+              label="Date of Birth"
+              type="date"
+              value={formData.dateOfBirth}
+              onChange={(value) => handleInputChange("dateOfBirth", value)}
+            />
+            <FormInput
+              label="Birth Time"
+              type="time"
+              step="1" // Allows seconds input
+              value={formData.birthTime}
+              onChange={(value) => handleInputChange("birthTime", value)}
+            />
+            <FormInput
+              label="Baby Height (cm)"
+              value={formData.babyHeight}
+              onChange={(value) => handleInputChange("babyHeight", value)}
+            />
+            <FormInput
+              label="Baby Weight (kg)"
+              value={formData.babyWeight}
+              onChange={(value) => handleInputChange("babyWeight", value)}
+            />
+            <FormInput
+              label="Baby Gender"
               value={formData.babyGender}
-              onChange={handleInputChange}
-            >
-              <MenuItem value="Male">Male</MenuItem>
-              <MenuItem value="Female">Female</MenuItem>
-              <MenuItem value="Other">Other</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl fullWidth variant="standard">
-            <InputLabel id="delivery-type-label">Type of Delivery</InputLabel>
-            <Select
-              labelId="delivery-type-label"
-              name="deliveryType"
-              value={formData.deliveryType}
-              onChange={handleInputChange}
-            >
-              <MenuItem value="Normal">Normal</MenuItem>
-              <MenuItem value="Vaginal Delivery">Vaginal Delivery</MenuItem>
-              <MenuItem value="C-section">C-section</MenuItem>
-            </Select>
-          </FormControl>
-          <TextField
-            label="Tribe"
-            name="tribe"
-            value={formData.tribe}
-            onChange={handleInputChange}
-            fullWidth
-            variant="standard"
-          />
-          <TextField
-            label="Remarks"
-            name="remarks"
-            value={formData.remarks}
-            onChange={handleInputChange}
-            fullWidth
-            variant="standard"
-            multiline
-            rows={4}
-          />
+              onChange={(value) => handleInputChange("babyGender", value)}
+              type="select"
+              options={[
+                { value: "Male", label: "Male" },
+                { value: "Female", label: "Female" },
+              ]}
+            />
+            <FormInput
+              label="Type of Delivery"
+              value={formData.typeOfDelivery}
+              onChange={(value) => handleInputChange("typeOfDelivery", value)}
+              type="select"
+              options={[
+                { value: "Normal", label: "Normal" },
+                { value: "Vaginal Delivery", label: "Vaginal Delivery" },
+                { value: "C-section", label: "C-section" },
+              ]}
+            />
+
+            <FormInput
+              label="Tribe"
+              value={formData.tribe}
+              onChange={(value) => handleInputChange("tribe", value)}
+            />
+            <FormInput
+              label="Remarks"
+              value={formData.remarks}
+              onChange={(value) => handleInputChange("remarks", value)}
+            />
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogClose} color="primary">

@@ -33,6 +33,13 @@ import preOprNoteReducer from "./slice/IpSlice/GET/preOprNote";
 import intraOprNoteReducer from "./slice/IpSlice/GET/intraOprNote";
 import pacuOprNoteReducer from "./slice/IpSlice/GET/pacuOprNote";
 import finalDiagnosisRedcuer from "./slice/IpSlice/GET/finalDiagnosis";
+import lifeSupportReducer from "./slice/IpSlice/GET/lifeSupport";
+import deliveryDetailsReducer from "./slice/IpSlice/GET/deliveryDetails";
+import treatmentPlanNoteReducer from "./slice/IpSlice/GET/TreatmentPlanNote";
+import followUpPlanReducer from "./slice/IpSlice/GET/followUpPlan";
+import searchDiagnosisReducer from "./slice/IpSlice/GET/searchDiagnosis";
+import searchMedicineReducer from "./slice/OpSlice/GET/searchMedicine";
+import addSurgeryDetailsReducer from "./slice/IpSlice/POST/surgeryDetails";
 
 const docEmrReducer = combineReducers({
   showVital: vitalReducer,
@@ -73,6 +80,16 @@ const docEmrReducer = combineReducers({
   preNote: preOprNoteReducer,
   intraNote: intraOprNoteReducer,
   pacuNote: pacuOprNoteReducer,
+  treatmentPlanNote: treatmentPlanNoteReducer,
+
+  lifeSupport: lifeSupportReducer,
+  delivery: deliveryDetailsReducer,
+  followUp: followUpPlanReducer,
+
+  searchDiagnosis: searchDiagnosisReducer,
+  searchMedicine: searchMedicineReducer,
+
+  addSurgeryDetails: addSurgeryDetailsReducer,
 });
 
 export default docEmrReducer;

@@ -4,10 +4,10 @@ import { API_ENDPOINTS } from "../../../api/apiEndPointend";
 
 export const fetchROS = createAsyncThunk(
   "emr_doctor/ros",
-  async ({ appointmentId }, { rejectWithValue }) => {
+  async ({ patientId }, { rejectWithValue }) => {
     try {
       const response = await AxiosInstance.get(
-        `${API_ENDPOINTS.GET_ROS}?appointmentId=${appointmentId}`
+        `${API_ENDPOINTS.GET_ROS}?patientId=${patientId}`
       );
       return response?.data;
     } catch (error) {

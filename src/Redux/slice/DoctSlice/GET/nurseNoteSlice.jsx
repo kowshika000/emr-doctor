@@ -4,10 +4,10 @@ import { API_ENDPOINTS } from "../../../api/apiEndPointend";
 
 export const fetchNurseNote = createAsyncThunk(
   "emr_doctor/nurseNote",
-  async ({ appointmentId }, { rejectWithValue }) => {
+  async ({ patientId }, { rejectWithValue }) => {
     try {
       const response = await AxiosInstance.get(
-        `${API_ENDPOINTS.GET_NURSE_NOTE}?appointmentId=${appointmentId}`
+        `${API_ENDPOINTS.GET_NURSE_NOTE}?patientId=${patientId}`
       );
       return response?.data;
     } catch (error) {
